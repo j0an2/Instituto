@@ -48,13 +48,13 @@ Des de `1ESO/Matematicas/codigo`, amb el Python de l'entorn de Manim:
 
 1. **Provar** una escena en qualitat baixa:
    ```powershell
-   C:\Users\jbala\venvs\manim\Scripts\python.exe -m manim -pql t01_divisibilidad.py Divisores
+   ~\venvs\manim\Scripts\python.exe -m manim -pql t01_divisibilidad.py Divisores
    ```
 2. **Publicar** quan estiga bé (renderitza en 1080p, deixa els vídeos numerats a `videos/<tema>/` i actualitza la web):
    ```powershell
-   C:\Users\jbala\venvs\manim\Scripts\python.exe publicar.py t01_divisibilidad.py   # un tema
-   C:\Users\jbala\venvs\manim\Scripts\python.exe publicar.py --todos                # tots
-   C:\Users\jbala\venvs\manim\Scripts\python.exe publicar.py --solo-web             # només la llista de la web
+   ~\venvs\manim\Scripts\python.exe publicar.py t01_divisibilidad.py   # un tema
+   ~\venvs\manim\Scripts\python.exe publicar.py --todos                # tots
+   ~\venvs\manim\Scripts\python.exe publicar.py --solo-web             # només la llista de la web
    ```
 3. Obrir `Manim/index.html` al navegador.
 
@@ -285,11 +285,11 @@ Fracció → decimal dividint i arrodoniment van al tema 7 (operacions amb decim
 
 ## Entorn de Python (des del 05/11/2026)
 
-Manim s'executa des de l'entorn virtual **`C:\Users\jbala\venvs\manim`**, no des del Python global:
+Manim s'executa des de l'entorn virtual **`~\venvs\manim`**, no des del Python global:
 
 ```powershell
-C:\Users\jbala\venvs\manim\Scripts\python.exe -m manim -pql t05_fracciones.py QueEsUnaFraccion
-C:\Users\jbala\venvs\manim\Scripts\python.exe publicar.py t05_fracciones.py
+~\venvs\manim\Scripts\python.exe -m manim -pql t05_fracciones.py QueEsUnaFraccion
+~\venvs\manim\Scripts\python.exe publicar.py t05_fracciones.py
 ```
 
 Motiu: el paquet `dsts_extractor` (instal·lat al Python global) exigeix `click==8.1.7`, i Manim necessita `click>=8.5`.

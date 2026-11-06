@@ -8,8 +8,8 @@ Escenas:
     OrdenarDecimales    – igualar cifras con ceros y colocar en la recta
 
 Renderizar (desde esta carpeta, con el Python del entorno de Manim):
-    C:\\Users\\jbala\\venvs\\manim\\Scripts\\python.exe -m manim -pql t06_decimales.py QueEsUnDecimal
-    C:\\Users\\jbala\\venvs\\manim\\Scripts\\python.exe publicar.py t06_decimales.py
+    ~\\venvs\\manim\\Scripts\\python.exe -m manim -pql t06_decimales.py QueEsUnDecimal
+    ~\\venvs\\manim\\Scripts\\python.exe publicar.py t06_decimales.py
 """
 import os
 import sys

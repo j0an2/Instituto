@@ -1,0 +1,8 @@
+# Caché y temporales de Manim (se regeneran al renderizar)
+media/
+__pycache__/
+*.log
+
+# Documentos que no se publican
+*.pdf
+LEEME_PARA_IA.txt

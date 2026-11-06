@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vídeos de clase</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --surface-2: #efede7;
+    --text: #1d1d1b;
+    --muted: #6b6a65;
+    --line: #dddad2;
+    --accent: #2f5d8a;
+    --mat: #2f5d8a;
+    --fq: #b4532a;
+    --bg-geo: #3c7a4a;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514;
+      --surface: #1f1f1d;
+      --surface-2: #2a2a27;
+      --text: #ecebe6;
+      --muted: #a09f99;
+      --line: #34332f;
+      --accent: #7fb0e0;
+      --mat: #7fb0e0;
+      --fq: #e8916a;
+      --bg-geo: #7fc28e;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 64px; }
+  header.top { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+  .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 15px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); text-decoration: underline; }
+  .crumbs .sep { opacity: .5; }
+  .crumbs .here { color: var(--text); font-weight: 600; }
+
+  h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.15; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .lead { color: var(--muted); margin: 0 0 32px; font-size: 17px; }
+  h2.group { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 28px 0 12px; font-weight: 600; }
+
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px 20px; box-shadow: var(--shadow);
+    transition: transform .15s ease, border-color .15s ease;
+    position: relative; overflow: hidden;
+  }
+  .card:hover, .card:focus-visible { transform: translateY(-2px); border-color: var(--c, var(--accent)); outline: none; }
+  .card .big { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  .card .sub { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .card .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--c, var(--accent)); }
+  .card .name { font-size: 20px; font-weight: 650; line-height: 1.25; }
+  .pill { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 99px; background: var(--surface-2); color: var(--muted); margin-top: 12px; }
+  .pill.on { background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); font-weight: 600; }
+
+  /* Player */
+  .player { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+  @media (max-width: 860px) { .player { grid-template-columns: 1fr; } }
+  .stage { background: #000; border-radius: var(--radius); overflow: hidden; aspect-ratio: 16 / 9; }
+  .stage video { width: 100%; height: 100%; display: block; background: #000; }
+  .now { margin-top: 14px; }
+  .now .t { font-size: 22px; font-weight: 650; margin: 0; }
+  .now .m { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+  .controls { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  button.btn {
+    font: inherit; font-size: 14px; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+    background: var(--surface); color: var(--text); border: 1px solid var(--line);
+  }
+  button.btn:hover:not(:disabled) { border-color: var(--c, var(--accent)); }
+  button.btn:disabled { opacity: .4; cursor: default; }
+
+  .list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .list summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); font-weight: 600; user-select: none;
+  }
+  .list summary::-webkit-details-marker { display: none; }
+  .list summary:hover { background: var(--surface-2); color: var(--text); }
+  .list summary:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+  .list summary .tt { flex: 1; line-height: 1.35; }
+  .list summary .cnt {
+    font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: 500;
+    padding: 1px 8px; border-radius: 99px; background: var(--surface-2); white-space: nowrap;
+  }
+  .list summary .chev { width: 10px; height: 10px; flex: none; border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s ease; }
+  .list details[open] > summary { color: var(--text); }
+  .list details[open] > summary .chev { transform: rotate(45deg); }
+  .list details.has-active > summary .tt { color: var(--c); }
+  .list ol { list-style: none; margin: 0; padding: 0 0 8px; }
+  .list li button {
+    all: unset; box-sizing: border-box; cursor: pointer; display: flex; gap: 12px; align-items: baseline;
+    width: 100%; padding: 9px 16px; font-size: 15px;
+  }
+  .list li button:hover { background: var(--surface-2); }
+  .list li button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+  .list li button .n { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 1.6em; font-size: 13px; }
+  .list li button.active { background: color-mix(in srgb, var(--c) 14%, transparent); font-weight: 600; }
+  .list li button.active .n { color: var(--c); }
+  .list .topic + .topic { border-top: 1px solid var(--line); }
+
+  .empty {
+    background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius);
+    padding: 48px 24px; text-align: center; color: var(--muted);
+  }
+  .empty strong { display: block; color: var(--text); font-size: 18px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ======================================================
+   CONTENIDO
+   Para añadir vídeos a otro curso/asignatura, rellena
+   "temas" en la entrada correspondiente de VIDEOS.
+   Clave: "<curso>/<asignatura>"
+   ====================================================== */
+const CURSOS = [
+  { id: "1eso",   corto: "1º", nombre: "1º ESO",          etapa: "ESO" },
+  { id: "2eso",   corto: "2º", nombre: "2º ESO",          etapa: "ESO" },
+  { id: "3eso",   corto: "3º", nombre: "3º ESO",          etapa: "ESO" },
+  { id: "4eso",   corto: "4º", nombre: "4º ESO",          etapa: "ESO" },
+  { id: "1bach",  corto: "1º", nombre: "1º Bachillerato", etapa: "Bachillerato" },
+  { id: "2bach",  corto: "2º", nombre: "2º Bachillerato", etapa: "Bachillerato" },
+];
+
+const ASIGNATURAS = [
+  { id: "mat", nombre: "Matemáticas",          color: "var(--mat)" },
+  { id: "fq",  nombre: "Física y Química",     color: "var(--fq)" },
+  { id: "bg",  nombre: "Biología y Geología",  color: "var(--bg-geo)" },
+];
+
+const VIDEOS = {
+  // <<AUTO 1eso/mat · generado por publicar.py, no editar a mano
+  "1eso/mat": [
+    { tema: "Tema 1 · Divisibilidad", videos: [
+      { titulo: "Múltiplos y divisores", src: "1ESO/Matematicas/videos/t01_divisibilidad/1.Divisores.mp4" },
+      { titulo: "Números primos y compuestos", src: "1ESO/Matematicas/videos/t01_divisibilidad/2.PrimosCompuestos.mp4" },
+      { titulo: "Criterios de divisibilidad", src: "1ESO/Matematicas/videos/t01_divisibilidad/3.Criterios.mp4" },
+      { titulo: "Criba de Eratóstenes", src: "1ESO/Matematicas/videos/t01_divisibilidad/4.CribaEratostenes.mp4" },
+    ]},
+    { tema: "Tema 2 · Factores primos, M.C.D. y m.c.m.", videos: [
+      { titulo: "Árbol de factores", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/1.ArbolFactores.mp4" },
+      { titulo: "Divisiones sucesivas", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/2.DivisionesSucesivas.mp4" },
+      { titulo: "Múltiplos y divisores comunes", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/3.ComunesRecta.mp4" },
+      { titulo: "M.C.D. y m.c.m. con factores", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/4.McdMcmFactores.mp4" },
+      { titulo: "Problemas: ¿M.C.D. o m.c.m.?", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/5.ProblemasMcdMcm.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplo resuelto", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/6.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos (b – h)", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/7.EjerciciosResueltos.mp4" },
+    ]},
+    { tema: "Tema 3 · Números enteros", videos: [
+      { titulo: "¿Para qué sirven los negativos?", src: "1ESO/Matematicas/videos/t03_enteros/1.NegativosVidaReal.mp4" },
+      { titulo: "La recta de los números enteros", src: "1ESO/Matematicas/videos/t03_enteros/2.RectaEnteros.mp4" },
+      { titulo: "Opuesto y valor absoluto", src: "1ESO/Matematicas/videos/t03_enteros/3.OpuestoValorAbsoluto.mp4" },
+      { titulo: "Comparar y ordenar enteros", src: "1ESO/Matematicas/videos/t03_enteros/4.OrdenarEnteros.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t03_enteros/5.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t03_enteros/6.EjerciciosResueltos.mp4" },
+    ]},
+    { tema: "Tema 4 · Operaciones con números enteros", videos: [
+      { titulo: "Sumar enteros en la recta", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/1.SumaRecta.mp4" },
+      { titulo: "Sumar con fichas: la regla de la suma", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/2.SumaFichas.mp4" },
+      { titulo: "Restar es sumar el opuesto", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/3.Resta.mp4" },
+      { titulo: "Sumas y restas combinadas", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/4.SumasRestasCombinadas.mp4" },
+      { titulo: "Multiplicar: la regla de los signos", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/5.Multiplicacion.mp4" },
+      { titulo: "Dividir enteros", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/6.Division.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/7.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t04_operaciones_enteros/8.EjerciciosResueltos.mp4" },
+    ]},
+    { tema: "Tema 5 · Fracciones equivalentes, comparar y ordenar", videos: [
+      { titulo: "¿Qué es una fracción?", src: "1ESO/Matematicas/videos/t05_fracciones/1.QueEsUnaFraccion.mp4" },
+      { titulo: "Fracciones equivalentes", src: "1ESO/Matematicas/videos/t05_fracciones/2.FraccionesEquivalentes.mp4" },
+      { titulo: "Amplificar y simplificar", src: "1ESO/Matematicas/videos/t05_fracciones/3.AmplificarSimplificar.mp4" },
+      { titulo: "Comparar fracciones", src: "1ESO/Matematicas/videos/t05_fracciones/4.CompararFracciones.mp4" },
+      { titulo: "Ordenar fracciones", src: "1ESO/Matematicas/videos/t05_fracciones/5.OrdenarFracciones.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t05_fracciones/6.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t05_fracciones/7.EjerciciosResueltos.mp4" },
+    ]},
+    { tema: "Tema 6 · Números decimales", videos: [
+      { titulo: "¿Qué es un número decimal?", src: "1ESO/Matematicas/videos/t06_decimales/1.QueEsUnDecimal.mp4" },
+      { titulo: "El valor de cada cifra", src: "1ESO/Matematicas/videos/t06_decimales/2.ValorPosicional.mp4" },
+      { titulo: "Decimales en la recta", src: "1ESO/Matematicas/videos/t06_decimales/3.DecimalesEnLaRecta.mp4" },
+      { titulo: "Comparar decimales", src: "1ESO/Matematicas/videos/t06_decimales/4.CompararDecimales.mp4" },
+      { titulo: "Ordenar decimales", src: "1ESO/Matematicas/videos/t06_decimales/5.OrdenarDecimales.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t06_decimales/6.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t06_decimales/7.EjerciciosResueltos.mp4" },
+    ]},
+  ],
+  // AUTO>>
+};
+
+/* ====================================================== */
+
+const app = document.getElementById("app");
+const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content; };
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const count = (key) => (VIDEOS[key] || []).reduce((n, t) => n + t.videos.length, 0);
+const plural = (n) => n === 1 ? "1 vídeo" : n + " vídeos";
+
+function crumbs(parts) {
+  const items = [`<a href="#/">Inicio</a>`];
+  parts.forEach((p, i) => {
+    items.push(`<span class="sep">›</span>`);
+    items.push(i === parts.length - 1 ? `<span class="here">${esc(p.label)}</span>` : `<a href="${p.href}">${esc(p.label)}</a>`);
+  });
+  return `<header class="top"><nav class="crumbs" aria-label="Ruta">${items.join("")}</nav></header>`;
+}
+
+function viewHome() {
+  document.title = "Vídeos de clase";
+  const grupo = (etapa) => CURSOS.filter(c => c.etapa === etapa).map(c => {
+    const n = ASIGNATURAS.reduce((s, a) => s + count(c.id + "/" + a.id), 0);
+    return `<a class="card" href="#/${c.id}">
+      <div class="big">${c.corto}</div>
+      <div class="sub">${esc(c.nombre)}</div>
+      <span class="pill ${n ? "on" : ""}" style="--c:var(--accent)">${n ? plural(n) : "Sin vídeos aún"}</span>
+    </a>`;
+  }).join("");
+  app.replaceChildren(el(`
+    <h1>Curso escolar</h1>
+    <p class="lead">Elige tu curso para ver los vídeos de cada asignatura.</p>
+    <h2 class="group">ESO</h2><div class="grid">${grupo("ESO")}</div>
+    <h2 class="group">Bachillerato</h2><div class="grid">${grupo("Bachillerato")}</div>
+  `));
+}
+
+function viewCurso(curso) {
+  document.title = curso.nombre;
+  const cards = ASIGNATURAS.map(a => {
+    const n = count(curso.id + "/" + a.id);
+    return `<a class="card" href="#/${curso.id}/${a.id}" style="--c:${a.color}">
+      <span class="bar"></span>
+      <div class="name">${esc(a.nombre)}</div>
+      <span class="pill ${n ? "on" : ""}">${n ? plural(n) : "Próximamente"}</span>
+    </a>`;
+  }).join("");
+  app.replaceChildren(el(`
+    ${crumbs([{ label: curso.nombre }])}
+    <h1>${esc(curso.nombre)}</h1>
+    <p class="lead">Asignaturas</p>
+    <div class="grid">${cards}</div>
+  `));
+}
+
+function viewAsignatura(curso, asig, startIndex) {
+  document.title = asig.nombre + " · " + curso.nombre;
+  const key = curso.id + "/" + asig.id;
+  const temas = VIDEOS[key] || [];
+  const head = `${crumbs([{ label: curso.nombre, href: "#/" + curso.id }, { label: asig.nombre }])}
+    <h1 style="--c:${asig.color}">${esc(asig.nombre)}</h1>
+    <p class="lead">${esc(curso.nombre)}</p>`;
+
+  if (!temas.length) {
+    app.replaceChildren(el(`${head}
+      <div class="empty"><strong>Todavía no hay vídeos</strong>Los vídeos de esta asignatura se añadirán más adelante.</div>`));
+    return;
+  }
+
+  const flat = [];
+  temas.forEach((t, ti) => t.videos.forEach((v, vi) =>
+    flat.push({ ...v, tema: t.tema, t: ti, local: vi + 1, total: t.videos.length })));
+
+  // Acordeón: un <details> por tema; name="temas" deja solo uno abierto a la vez
+  let idx = 0;
+  const lista = temas.map((t, ti) => `<details class="topic" name="temas" data-t="${ti}">
+      <summary><span class="chev" aria-hidden="true"></span><span class="tt">${esc(t.tema)}</span>
+        <span class="cnt">${plural(t.videos.length)}</span></summary>
+      <ol>${t.videos.map((v, vi) => { const i = idx++;
+        return `<li><button data-i="${i}"><span class="n">${vi + 1}</span><span>${esc(v.titulo)}</span></button></li>`;
+      }).join("")}</ol>
+    </details>`).join("");
+
+  app.replaceChildren(el(`${head}
+    <div class="player" style="--c:${asig.color}">
+      <div>
+        <div class="stage"><video id="vid" controls playsinline preload="metadata"></video></div>
+        <div class="now"><p class="t" id="vt"></p><p class="m" id="vm"></p></div>
+        <div class="controls">
+          <button class="btn" id="prev">← Anterior</button>
+          <button class="btn" id="next">Siguiente →</button>
+        </div>
+      </div>
+      <aside class="list">${lista}</aside>
+    </div>`));
+
+  const vid = document.getElementById("vid");
+  const buttons = [...app.querySelectorAll(".list button")];
+  let cur = -1;
+
+  function load(i, autoplay) {
+    i = Math.max(0, Math.min(flat.length - 1, i));
+    cur = i;
+    const v = flat[i];
+    vid.src = encodeURI(v.src);
+    document.getElementById("vt").textContent = v.titulo;
+    document.getElementById("vm").textContent = `${v.tema} · vídeo ${v.local} de ${v.total}`;
+    buttons.forEach(b => b.classList.toggle("active", +b.dataset.i === i));
+    app.querySelectorAll(".list details").forEach(d => {
+      const mine = +d.dataset.t === v.t;
+      d.classList.toggle("has-active", mine);
+      if (mine) d.open = true;  // abre el tema del vídeo actual
+    });
+    document.getElementById("prev").disabled = i === 0;
+    document.getElementById("next").disabled = i === flat.length - 1;
+    history.replaceState(null, "", `#/${curso.id}/${asig.id}/${i + 1}`);
+    if (autoplay) vid.play().catch(() => {});
+  }
+
+  buttons.forEach(b => b.addEventListener("click", () => load(+b.dataset.i, true)));
+  document.getElementById("prev").addEventListener("click", () => load(cur - 1, true));
+  document.getElementById("next").addEventListener("click", () => load(cur + 1, true));
+  vid.addEventListener("ended", () => { if (cur < flat.length - 1) load(cur + 1, true); });
+
+  load(startIndex, false);
+}
+
+function route() {
+  const [c, a, n] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  const curso = CURSOS.find(x => x.id === c);
+  const asig = ASIGNATURAS.find(x => x.id === a);
+  if (curso && asig) viewAsignatura(curso, asig, Math.max(0, (parseInt(n, 10) || 1) - 1));
+  else if (curso) viewCurso(curso);
+  else viewHome();
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>

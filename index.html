@@ -16,8 +16,11 @@
     --mat: #2f5d8a;
     --fq: #b4532a;
     --bg-geo: #3c7a4a;
+    --geo-his: #8a6420;
     --radius: 14px;
     --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
+    --cuadricula: rgba(47,93,138,.08);
+    --formula: rgba(47,93,138,.18);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -31,7 +34,10 @@
       --mat: #7fb0e0;
       --fq: #e8916a;
       --bg-geo: #7fc28e;
+      --geo-his: #d9b36a;
       --shadow: none;
+      --cuadricula: rgba(127,176,224,.06);
+      --formula: rgba(127,176,224,.16);
     }
   }
   * { box-sizing: border-box; }
@@ -43,7 +49,24 @@
     line-height: 1.5;
     min-height: 100vh;
   }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 64px; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 32px 20px 64px; }
+
+  /* Fondo de cuadrícula de libreta en Matemáticas */
+  body[data-asig="mat"] {
+    background-image:
+      linear-gradient(var(--cuadricula) 1px, transparent 1px),
+      linear-gradient(90deg, var(--cuadricula) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: center top;
+  }
+
+  /* Fórmulas decorativas en los márgenes (solo pantallas anchas, solo Matemáticas) */
+  .formulas { display: none; position: fixed; inset: 0; z-index: -1; pointer-events: none; color: var(--formula); }
+  @media (min-width: 1700px) { body[data-asig="mat"] .formulas { display: block; } }
+  .formulas span { position: absolute; transform: translate(-50%, -50%) rotate(var(--r)); }
+  .formulas span.izq { left: calc((100vw - 1440px) / 4); }
+  .formulas span.der { left: calc(100vw - (100vw - 1440px) / 4); }
+  .formulas svg { display: block; height: var(--h); width: auto; max-width: calc((100vw - 1440px) / 2 - 40px); }
   header.top { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
   .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 15px; color: var(--muted); }
   .crumbs a { color: var(--muted); text-decoration: none; }
@@ -70,9 +93,15 @@
   .card .name { font-size: 20px; font-weight: 650; line-height: 1.25; }
   .pill { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 99px; background: var(--surface-2); color: var(--muted); margin-top: 12px; }
   .pill.on { background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); font-weight: 600; }
+  /* Tarjeta de asignatura con su mascota a la derecha */
+  .card.con-img { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 14px 14px 22px; min-height: 150px; }
+  .card.con-img .info { min-width: 0; }
+  .grid.asigs { grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr)); }
+  .card.con-img img { height: 120px; width: auto; flex: none; transition: transform .2s ease; }
+  .card.con-img:hover img { transform: rotate(-4deg) scale(1.05); }
 
   /* Player */
-  .player { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+  .player { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
   @media (max-width: 860px) { .player { grid-template-columns: 1fr; } }
   .stage { background: #000; border-radius: var(--radius); overflow: hidden; aspect-ratio: 16 / 9; }
   .stage video { width: 100%; height: 100%; display: block; background: #000; }
@@ -118,6 +147,26 @@
   .list li button.active .n { color: var(--c); }
   .list .topic + .topic { border-top: 1px solid var(--line); }
 
+  /* Cabecera con mascota del curso */
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  .hero .txt { min-width: 0; }
+  .mascota { display: flex; align-items: center; gap: 12px; flex: none; margin: -24px 0 -8px; }
+  .mascota img { height: 150px; width: auto; display: block; }
+  .bocadillo {
+    position: relative; max-width: 220px; padding: 9px 14px; font-size: 14px; line-height: 1.35;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  }
+  .bocadillo::after {
+    content: ""; position: absolute; right: -7px; top: 50%; width: 12px; height: 12px;
+    background: var(--surface); border-right: 1px solid var(--line); border-top: 1px solid var(--line);
+    transform: translateY(-50%) rotate(45deg);
+  }
+  @media (max-width: 600px) {
+    .mascota { margin: 0; }
+    .mascota img { height: 90px; }
+    .bocadillo { display: none; }
+  }
+
   .empty {
     background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius);
     padding: 48px 24px; text-align: center; color: var(--muted);
@@ -126,8 +175,10 @@
 </style>
 </head>
 <body>
+<div class="formulas" id="formulas" aria-hidden="true"></div>
 <div class="wrap" id="app"></div>
 
+<script src="assets/formulas/formulas.js"></script>
 <script>
 /* ======================================================
    CONTENIDO
@@ -136,7 +187,10 @@
    Clave: "<curso>/<asignatura>"
    ====================================================== */
 const CURSOS = [
-  { id: "1eso",   corto: "1º", nombre: "1º ESO",          etapa: "ESO" },
+  { id: "1eso",   corto: "1º", nombre: "1º ESO",          etapa: "ESO", mascota: "assets/mascota/1eso_saluda.webp",
+    // mascota de cada asignatura (tarjeta y cabecera): assets/mascota/<curso>_<asignatura>.webp
+    mascotas: { mat: "assets/mascota/1eso_mat.webp", fq: "assets/mascota/1eso_fq.webp",
+                bg: "assets/mascota/1eso_bg.webp",   gh: "assets/mascota/1eso_gh.webp" } },
   { id: "2eso",   corto: "2º", nombre: "2º ESO",          etapa: "ESO" },
   { id: "3eso",   corto: "3º", nombre: "3º ESO",          etapa: "ESO" },
   { id: "4eso",   corto: "4º", nombre: "4º ESO",          etapa: "ESO" },
@@ -148,6 +202,7 @@ const ASIGNATURAS = [
   { id: "mat", nombre: "Matemáticas",          color: "var(--mat)" },
   { id: "fq",  nombre: "Física y Química",     color: "var(--fq)" },
   { id: "bg",  nombre: "Biología y Geología",  color: "var(--bg-geo)" },
+  { id: "gh",  nombre: "Geografía e Historia", color: "var(--geo-his)" },
 ];
 
 const VIDEOS = {
@@ -204,6 +259,24 @@ const VIDEOS = {
       { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t06_decimales/6.EjerciciosEjemplo.mp4" },
       { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t06_decimales/7.EjerciciosResueltos.mp4" },
     ]},
+    { tema: "Tema 7 · Operaciones con fracciones", videos: [
+      { titulo: "Sumar y restar con el mismo denominador", src: "1ESO/Matematicas/videos/t07_operaciones_fracciones/1.SumaRestaMismoDenominador.mp4" },
+      { titulo: "Sumar y restar con distinto denominador", src: "1ESO/Matematicas/videos/t07_operaciones_fracciones/2.SumaRestaDistintoDenominador.mp4" },
+      { titulo: "Fracción de una cantidad", src: "1ESO/Matematicas/videos/t07_operaciones_fracciones/3.FraccionDeUnaCantidad.mp4" },
+      { titulo: "Multiplicar fracciones", src: "1ESO/Matematicas/videos/t07_operaciones_fracciones/4.MultiplicarFracciones.mp4" },
+      { titulo: "Dividir fracciones", src: "1ESO/Matematicas/videos/t07_operaciones_fracciones/5.DividirFracciones.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t07_operaciones_fracciones/6.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t07_operaciones_fracciones/7.EjerciciosResueltos.mp4" },
+    ]},
+    { tema: "Tema 8 · Operaciones con decimales", videos: [
+      { titulo: "Sumar y restar decimales", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/1.SumaRestaDecimales.mp4" },
+      { titulo: "Multiplicar y dividir por 10, 100, 1000", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/2.PorDiezCienMil.mp4" },
+      { titulo: "Multiplicar decimales", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/3.MultiplicarDecimales.mp4" },
+      { titulo: "Dividir decimales", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/4.DividirDecimales.mp4" },
+      { titulo: "De fracción a decimal y redondeo", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/5.FraccionADecimal.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/6.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/7.EjerciciosResueltos.mp4" },
+    ]},
   ],
   // AUTO>>
 };
@@ -223,6 +296,17 @@ function crumbs(parts) {
     items.push(i === parts.length - 1 ? `<span class="here">${esc(p.label)}</span>` : `<a href="${p.href}">${esc(p.label)}</a>`);
   });
   return `<header class="top"><nav class="crumbs" aria-label="Ruta">${items.join("")}</nav></header>`;
+}
+
+// Título + subtítulo, con la mascota del curso a la derecha si la tiene
+function hero(titulo, lead, curso, frase, color, img) {
+  const txt = `<div class="txt"><h1${color ? ` style="--c:${color}"` : ""}>${esc(titulo)}</h1><p class="lead">${esc(lead)}</p></div>`;
+  img = img || curso.mascota;
+  if (!img) return txt;
+  return `<div class="hero">${txt}
+    <div class="mascota"><div class="bocadillo">${esc(frase)}</div>
+      <img src="${img}" alt="Mascota de ${esc(curso.nombre)}: un ajolote"></div>
+  </div>`;
 }
 
 function viewHome() {
@@ -247,17 +331,18 @@ function viewCurso(curso) {
   document.title = curso.nombre;
   const cards = ASIGNATURAS.map(a => {
     const n = count(curso.id + "/" + a.id);
-    return `<a class="card" href="#/${curso.id}/${a.id}" style="--c:${a.color}">
+    const img = (curso.mascotas || {})[a.id];
+    return `<a class="card${img ? " con-img" : ""}" href="#/${curso.id}/${a.id}" style="--c:${a.color}">
       <span class="bar"></span>
-      <div class="name">${esc(a.nombre)}</div>
-      <span class="pill ${n ? "on" : ""}">${n ? plural(n) : "Próximamente"}</span>
+      <div class="info"><div class="name">${esc(a.nombre)}</div>
+      <span class="pill ${n ? "on" : ""}">${n ? plural(n) : "Próximamente"}</span></div>
+      ${img ? `<img src="${img}" alt="" loading="lazy">` : ""}
     </a>`;
   }).join("");
   app.replaceChildren(el(`
     ${crumbs([{ label: curso.nombre }])}
-    <h1>${esc(curso.nombre)}</h1>
-    <p class="lead">Asignaturas</p>
-    <div class="grid">${cards}</div>
+    ${hero(curso.nombre, "Asignaturas", curso, "¡Hola! Elige una asignatura para empezar.")}
+    <div class="grid asigs">${cards}</div>
   `));
 }
 
@@ -266,8 +351,7 @@ function viewAsignatura(curso, asig, startIndex) {
   const key = curso.id + "/" + asig.id;
   const temas = VIDEOS[key] || [];
   const head = `${crumbs([{ label: curso.nombre, href: "#/" + curso.id }, { label: asig.nombre }])}
-    <h1 style="--c:${asig.color}">${esc(asig.nombre)}</h1>
-    <p class="lead">${esc(curso.nombre)}</p>`;
+    ${hero(asig.nombre, curso.nombre, curso, "¡Hola! ¿Qué vemos hoy?", asig.color, (curso.mascotas || {})[asig.id])}`;
 
   if (!temas.length) {
     app.replaceChildren(el(`${head}
@@ -337,11 +421,22 @@ function route() {
   const [c, a, n] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   const curso = CURSOS.find(x => x.id === c);
   const asig = ASIGNATURAS.find(x => x.id === a);
+  document.body.dataset.asig = curso && asig ? asig.id : "";
   if (curso && asig) viewAsignatura(curso, asig, Math.max(0, (parseInt(n, 10) || 1) - 1));
   else if (curso) viewCurso(curso);
   else viewHome();
   window.scrollTo(0, 0);
 }
+
+// Fórmulas del fondo: [lado, altura en % de la ventana, alto en px, giro en grados], una por fórmula
+const POS_FORMULAS = [
+  ["izq", 18, 56, -6], ["der", 24, 52, 5],  ["izq", 44, 26, 4],  ["der", 50, 24, -4],
+  ["izq", 66, 30, -3], ["der", 74, 26, 6],  ["izq", 86, 50, 5],  ["der", 92, 26, -5],
+];
+document.getElementById("formulas").innerHTML = (window.FORMULAS || []).map((svg, i) => {
+  const [lado, top, h, r] = POS_FORMULAS[i % POS_FORMULAS.length];
+  return `<span class="${lado}" style="top:${top}%;--h:${h}px;--r:${r}deg">${svg}</span>`;
+}).join("");
 
 window.addEventListener("hashchange", route);
 route();

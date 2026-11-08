@@ -1,4 +1,6 @@
 """Estilo común para todas las animaciones de Matemáticas 1º ESO."""
+import os
+
 from manim import *
 
 # Paleta
@@ -145,9 +147,10 @@ def pizza(partes, tomadas, r=1.3, color=ACENTO):
 
 
 # Decimales (tema 6 en adelante): un color fijo por posición
-COLOR_POS = {"C": "#8E9AAF", "D": "#B8C0CC", "U": WHITE, "d": "#5DADE2", "c": "#58D68D", "m": "#EB984E"}
-NOMBRE_POS = {"C": "centenas", "D": "decenas", "U": "unidades",
-              "d": "décimas", "c": "centésimas", "m": "milésimas"}
+COLOR_POS = {"M": "#C9B6E4", "C": "#8E9AAF", "D": "#B8C0CC", "U": WHITE,
+             "d": "#5DADE2", "c": "#58D68D", "m": "#EB984E", "x": "#F4D03F"}
+NOMBRE_POS = {"M": "millares", "C": "centenas", "D": "decenas", "U": "unidades",
+              "d": "décimas", "c": "centésimas", "m": "milésimas", "x": "diezmilésimas"}
 
 
 def dec_txt(x, n):
@@ -161,19 +164,19 @@ def tex_decimal(s, size=48, colores=True):
     partes, cols = [], []
     for i, ch in enumerate(ent):
         partes.append(ch)
-        cols.append(COLOR_POS["UDC"[len(ent) - 1 - i]])
+        cols.append(COLOR_POS["UDCM"[len(ent) - 1 - i]])
     if coma:
         partes.append("{,}")
         cols.append(WHITE)
     for i, ch in enumerate(dec):
         partes.append(ch)
-        cols.append(COLOR_POS["dcm"[i]])
+        cols.append(COLOR_POS["dcmx"[i]])
     t = MathTex(*partes, font_size=size)
     if colores:
         for p, c in zip(t, cols):
             p.set_color(c)
-    t.posiciones = [("UDC"[len(ent) - 1 - i]) for i in range(len(ent))] + ([","] if coma else []) + \
-        ["dcm"[i] for i in range(len(dec))]
+    t.posiciones = [("UDCM"[len(ent) - 1 - i]) for i in range(len(ent))] + ([","] if coma else []) + \
+        ["dcmx"[i] for i in range(len(dec))]
     return t
 
 
@@ -242,3 +245,76 @@ def pieza(p, r=0.32):
     g = VGroup(circ, num)
     g.valor = p
     return g
+
+
+# ---------------------------------------------------------------------------
+# Xola, la mascota: aparece en una esquina, cambia de expresión y habla con bocadillo.
+# Expresiones (1ESO/mascota/xola/*.png): saluda, celebra, duda, idea, ok, pensando,
+# senala, sorpresa, triste.
+# ---------------------------------------------------------------------------
+DIR_XOLA = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "mascota", "xola"))
+
+
+class Xola:
+    def __init__(self, scene, alto=2.0, esquina=DR, buff=0.25):
+        self.scene, self.alto, self.esquina, self.buff = scene, alto, esquina, buff
+        self.img = None
+        self.globo = None
+
+    def _imagen(self, expr):
+        im = ImageMobject(os.path.join(DIR_XOLA, expr + ".png")).set_height(self.alto)
+        return im.to_corner(self.esquina, buff=self.buff)
+
+    def _bocadillo(self, frase, size=24):
+        t = Text(frase, font_size=size, color="#1e1e2e", line_spacing=0.9)
+        caja = RoundedRectangle(width=t.width + 0.5, height=t.height + 0.4, corner_radius=0.2,
+                                fill_color=WHITE, fill_opacity=1, stroke_color=WHITE)
+        lado = 1 if self.esquina[0] > 0 else -1          # globo encima de la Xola, pegado al borde de la pantalla
+        caja.next_to(self.img, UP, buff=0.3).align_to(self.img, lado * RIGHT)
+        t.move_to(caja)
+        base = caja.get_edge_center(DOWN) * [0, 1, 0] + self.img.get_center() * [1, 0, 0]
+        pico = Polygon(base + LEFT * 0.18, base + RIGHT * 0.18, base + DOWN * 0.3,
+                       fill_color=WHITE, fill_opacity=1, stroke_width=0)
+        return VGroup(pico, caja, t).set_z_index(5)
+
+    def _quitar_globo(self):
+        if self.globo is None:
+            return []
+        g, self.globo = self.globo, None
+        return [FadeOut(g)]
+
+    def entra(self, expr="saluda", frase=None, espera=1.5):
+        self.img = self._imagen(expr).set_z_index(4)
+        self.scene.play(FadeIn(self.img, shift=UP * 0.4), run_time=0.6)
+        if frase:
+            self.dice(frase, espera)
+
+    def dice(self, frase, espera=1.5):
+        anims = self._quitar_globo()
+        self.globo = self._bocadillo(frase)
+        self.scene.play(*anims, FadeIn(self.globo, scale=0.8), run_time=0.4)
+        if espera:
+            self.scene.wait(espera)
+
+    def cambia(self, expr, frase=None, espera=1.5):
+        if self.img is None:
+            return self.entra(expr, frase, espera)
+        nueva = self._imagen(expr).set_z_index(4)
+        anims = [FadeOut(self.img), FadeIn(nueva)] + self._quitar_globo()
+        self.scene.play(*anims, run_time=0.4)
+        self.img = nueva
+        if expr == "celebra":
+            self.scene.play(self.img.animate.shift(UP * 0.3), rate_func=there_and_back, run_time=0.4)
+        if frase:
+            self.dice(frase, espera)
+
+    def calla(self):
+        anims = self._quitar_globo()
+        if anims:
+            self.scene.play(*anims, run_time=0.3)
+
+    def sale(self):
+        if self.img is None:
+            return
+        self.scene.play(FadeOut(self.img, shift=DOWN * 0.4), *self._quitar_globo(), run_time=0.5)
+        self.img = None

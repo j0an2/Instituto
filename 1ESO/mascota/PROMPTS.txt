@@ -1,0 +1,86 @@
+XOLA · LA MASCOTA DE 1.º ESO
+============================
+
+Xola es un ajolote que acompaña los vídeos. Aquí solo están las imágenes finales:
+
+    xola/          expresiones que usan los vídeos (las carga la clase Xola de Matematicas/codigo/estilo.py)
+    asignaturas/   una por asignatura, para la web (assets/mascota/1eso_<asignatura>.webp)
+
+Todas se hicieron en local con ComfyUI, en dos pasos:
+  1. Imagen base con Z-Image Turbo (texto → imagen).
+  2. Cada expresión o asignatura se EDITA a partir de la base con Qwen-Image-Edit-2511, para que el personaje
+     sea siempre el mismo. Después se le quita el fondo (BiRefNet).
+
+
+1 · IMAGEN BASE (xola/saluda.png)
+---------------------------------
+Modelo: z_image_turbo_bf16 · text encoder qwen_3_4b · VAE ae · 8 pasos, cfg 1.0 · 1024 x 1024 · semilla 102
+
+    A cute pink axolotl girl with fluffy coral feathery gills on her head, cream belly, rosy cheeks, big shiny
+    black eyes, a pink tail, wearing a small mint green backpack and blue and white sneakers, smiling and waving
+    hello with one hand raised, friendly welcoming pose. Mascot character design for a school math video series
+    for 12-year-olds, full body, front view, kawaii style but not babyish, simple geometric shapes, soft pastel
+    colors, thick clean outlines, flat vector illustration, isolated on a plain white background, no text,
+    no letters, no numbers.
+
+
+2 · EDICIONES CON QWEN-IMAGE-EDIT-2511
+--------------------------------------
+Modelo: Qwen-Image-Edit-2511 GGUF Q5_K_M + LoRA Lightning (4 pasos) · text encoder qwen_2.5_vl_7b_fp8_scaled ·
+VAE qwen_image_vae. Entrada: la imagen base sobre fondo blanco (1024 x 1024).
+A cada instrucción se le añade al final el bloque [KEEP]:
+
+[KEEP]
+    Keep exactly the same character design, gills, colors, backpack and sneakers, same flat cartoon style
+    with thick black outlines. Plain white background.
+
+Expresiones (xola/)                                                                       semilla
+    sorpresa   Make the axolotl look very surprised: eyes wide open, mouth open in an O shape,      11
+               both hands on its cheeks.
+    pensando   Make the axolotl thinking: one hand on its chin, eyes looking up, a small question   12
+               mark above its head.
+    idea       Make the axolotl have a bright idea: pointing one finger up, excited big smile,      12
+               a small yellow light bulb above its head.
+    celebra    Make the axolotl celebrate: both arms raised high, jumping with joy, eyes closed     12
+               happily, small sparkles around.
+    triste     Make the axolotl look a bit sad and worried: eyebrows tilted, small frown,           12
+               shoulders down, one small tear.
+    senala     Make the axolotl point with one arm to the right side of the image, like presenting  12
+               something, friendly smile.
+    ok         Make the axolotl give a thumbs up with one hand and wink with one eye, confident     11
+               smile.
+    duda       Make the axolotl look confused: scratching its head with one hand, one eyebrow       12
+               raised, tilted head.
+
+Asignaturas (asignaturas/)
+    mates.png      semilla 11 · The axolotl holds a drawing compass up in one hand and carries a blue set
+                   square (triangle ruler) tucked under its other arm, pressed against its side. Happy,
+                   confident smile. Keep the backpack.
+
+    geografia.png  semilla 11 · Dress the axolotl as a young explorer adventurer: beige safari hat, khaki
+                   explorer vest with pockets, and it holds an open old treasure-style paper map with both
+                   hands. Excited, adventurous smile.
+
+    fisica.png     tres ediciones encadenadas (cada una parte de la anterior):
+                   1) semilla 12 · The axolotl holds a yellow measuring tape in one hand and a stopwatch in the
+                      other hand. Next to its feet there is an Erlenmeyer flask with green liquid and a small
+                      bubble. Happy smile.
+                   2) semilla 11 · Dress the axolotl in a white laboratory coat, open at the front, with sleeves.
+                      Keep the ruler, the stopwatch and the green flask exactly the same.
+                   3) semilla 11 · Replace the analog stopwatch with a modern digital stopwatch: a rounded
+                      rectangular device with an LCD screen showing 00:00 in big digits and a button on top,
+                      no clock hands. Keep the lab coat, the ruler and the green flask exactly the same.
+                   El fondo se quita rellenando solo el blanco que toca el borde (BiRefNet agujereaba la bata).
+
+    biologia.png   tres ediciones encadenadas:
+                   1) semilla 12 · The axolotl looks through a magnifying glass at a grey rock with a pointy
+                      quartz crystal that it holds in its other hand. Curious, amazed expression.
+                   2) semilla 11 · Make the rock dirtier: add brown soil and mud on the rock and a few small dirt
+                      smudges on the axolotl's hand and cheek. Keep everything else the same, including the
+                      magnifying glass and the backpack.
+                   3) semilla 11 · Add a small cute red ladybug sitting on one of the axolotl's pink gills, and a
+                      small green plant sprout with two leaves sticking out of the top of its backpack.
+                      + Keep everything else exactly the same: the magnifying glass in front of its eye, the dirty
+                      rock, the dirt smudges, the backpack, same character, same flat cartoon style with thick
+                      black outlines. Plain white background.
+                      (El brote salió en la cabeza en vez de en la mochila, y añadió más manchas de tierra.)

@@ -93,6 +93,21 @@ def ficha_entero(signo, r=0.3):
     return g
 
 
+# Potencias (tema 9): base azul, exponente rosa
+BASE = "#5DADE2"
+EXPONENTE = "#FF79C6"
+
+
+def M(*partes, size=48):
+    """MathTex por trozos: cada parte es 'tex' o ('tex', color)."""
+    textos = [p[0] if isinstance(p, tuple) else p for p in partes]
+    t = MathTex(*textos, font_size=size)
+    for i, p in enumerate(partes):
+        if isinstance(p, tuple) and p[1]:
+            t[i].set_color(p[1])
+    return t
+
+
 # Fracciones (tema 5 en adelante): numerador verde, denominador lila, parte tomada amarilla
 NUMERADOR = "#7BD88F"
 DENOMINADOR = "#C39BD3"

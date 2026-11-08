@@ -6,6 +6,8 @@ Escenas:
     MultiplicarDecimales   – el rectángulo 2,3 × 1,4 en décimas; regla: sin comas y contar decimales
     DividirDecimales       – división entre natural (la coma del cociente), añadir ceros, divisor decimal
     FraccionADecimal       – 3/4 = 0,75; 1/3 = 0,333...; redondear
+    DecimalesPeriodicos    – periodo y arco; puro (2/11) y mixto (1/6); ¿exacto o periódico? por el denominador;
+                             truncar o redondear
     EjerciciosEjemplo      – enunciados (2 páginas) + primer apartado de cada ejercicio resuelto
     EjerciciosResueltos    – el resto de apartados
 
@@ -28,6 +30,7 @@ TITULOS = {
     "MultiplicarDecimales": "Multiplicar decimales",
     "DividirDecimales": "Dividir decimales",
     "FraccionADecimal": "De fracción a decimal y redondeo",
+    "DecimalesPeriodicos": "Decimales periódicos",
     "EjerciciosEjemplo": "Ejercicios: enunciados y ejemplos resueltos",
     "EjerciciosResueltos": "Ejercicios resueltos",
 }
@@ -702,6 +705,156 @@ class FraccionADecimal(Scene):
         self.play(Write(comp))
         sobra = texto("Sobra 1 céntimo", 30, ROSA).next_to(comp, DOWN, buff=0.3)
         self.play(FadeIn(sobra))
+        self.wait(3)
+
+
+# ===========================================================================
+COLOR_PERIODO = "#FF79C6"
+COLOR_ANTE = "#5DADE2"
+
+
+def periodico(ent, ante, per, size=60, arco=True):
+    """Decimal periódico con el periodo en rosa y un arco encima: 0,1⌒6. Devuelve VGroup(numero, arco)."""
+    partes = [ent + "{,}" + ante, per] if ante else [ent + "{,}", per]
+    t = MathTex(*partes, font_size=size)
+    t[1].set_color(COLOR_PERIODO)
+    if ante:
+        # colorea el anteperiodo (las cifras después de la coma)
+        t[0][len(ent) + 1:].set_color(COLOR_ANTE)
+    g = VGroup(t)
+    if arco:
+        k = size / 60
+        a = ArcBetweenPoints(t[1].get_corner(UL) + UP * 0.1 * k + LEFT * 0.02,
+                             t[1].get_corner(UR) + UP * 0.1 * k + RIGHT * 0.02, angle=-PI / 2.2,
+                             color=COLOR_PERIODO, stroke_width=4 * k)
+        g.add(a)
+    return g
+
+
+class DecimalesPeriodicos(Scene):
+    def construct(self):
+        cab = titulo(self, "Decimales periódicos", "Cifras que se repiten para siempre")
+
+        # 1/3: el periodo y el arco
+        r = VGroup(fraccion(1, 3, 64), MathTex(r"= 0{,}3333\ldots", font_size=60)).arrange(RIGHT, buff=0.25)
+        r.move_to([0, 1.6, 0])
+        self.play(Write(r))
+        exp = texto("La cifra que se repite se llama PERIODO", 30, COLOR_PERIODO).move_to([0, 0.3, 0])
+        self.play(FadeIn(exp))
+        p = periodico("0", "", "3", 80).move_to([0, -1.2, 0])
+        igual = VGroup(fraccion(1, 3, 64), MathTex("=", font_size=70)).arrange(RIGHT, buff=0.25).next_to(p, LEFT, buff=0.3)
+        self.play(FadeIn(igual), Write(p[0]))
+        self.play(Create(p[1]))
+        arco_t = texto("se escribe con un arco encima", 24, GREY_B).next_to(p, RIGHT, buff=0.5)
+        self.play(FadeIn(arco_t))
+        self.wait(2.5)
+        limpiar(self, cab)
+
+        # 2/11: periódico puro, el resto se repite
+        subtitulo(self, cab, "Periódico puro")
+        f = VGroup(fraccion(2, 11, 64), MathTex("= 2 : 11", font_size=56)).arrange(RIGHT, buff=0.3).move_to([-4.3, 1.6, 0])
+        self.play(Write(f))
+        division_larga(self, "2", 11, -0.6, 1.7, size=52, max_dec=4, lateral=True, rt=0.45)
+        rep = texto("El resto 2 vuelve a salir:\nla división se repite igual", 26, ACENTO).move_to([-4.3, -0.4, 0])
+        self.play(FadeIn(rep))
+        self.wait(1)
+        res = VGroup(fraccion(2, 11, 56), MathTex(r"= 0{,}1818\ldots =", font_size=52),
+                     periodico("0", "", "18", 60)).arrange(RIGHT, buff=0.25).move_to([0, -2.4, 0])
+        self.play(Write(res))
+        puro = texto("El periodo empieza justo después de la coma", 26, COLOR_PERIODO).to_edge(DOWN, buff=0.3)
+        self.play(FadeIn(puro))
+        self.wait(2.5)
+        limpiar(self, cab)
+
+        # 1/6: periódico mixto
+        subtitulo(self, cab, "Periódico mixto")
+        f = VGroup(fraccion(1, 6, 64), MathTex("= 1 : 6", font_size=56)).arrange(RIGHT, buff=0.3).move_to([-4.3, 1.6, 0])
+        self.play(Write(f))
+        division_larga(self, "1", 6, -0.6, 1.7, size=52, max_dec=4, lateral=True, rt=0.45)
+        res = VGroup(fraccion(1, 6, 56), MathTex(r"= 0{,}1666\ldots =", font_size=52),
+                     periodico("0", "1", "6", 60)).arrange(RIGHT, buff=0.25).move_to([0, -2.1, 0])
+        self.play(Write(res))
+        num = res[2][0]
+        ante = Brace(num[0][2:], DOWN, buff=0.1, color=COLOR_ANTE)
+        ante_t = texto("anteperiodo", 22, COLOR_ANTE).next_to(ante, DOWN, buff=0.05)
+        ante_t.shift(LEFT * (ante_t.width / 2 + 0.05))
+        per = Brace(num[1], DOWN, buff=0.1, color=COLOR_PERIODO)
+        per_t = texto("periodo", 22, COLOR_PERIODO).next_to(per, DOWN, buff=0.05)
+        per_t.shift(RIGHT * (per_t.width / 2 + 0.05))
+        self.play(GrowFromCenter(ante), FadeIn(ante_t), GrowFromCenter(per), FadeIn(per_t))
+        self.wait(2.5)
+        limpiar(self, cab)
+
+        # Resumen: los tres tipos
+        subtitulo(self, cab, "Tres tipos de decimales")
+        tipos = [
+            ("Exacto", VGroup(MathTex(r"0{,}75", font_size=60)), "La división termina", OK),
+            ("Periódico puro", periodico("0", "", "18", 60), "Se repite desde la coma", COLOR_PERIODO),
+            ("Periódico mixto", periodico("0", "1", "6", 60), "Hay cifras antes del periodo", COLOR_ANTE),
+        ]
+        cajas = VGroup()
+        for nombre, num, desc, col in tipos:
+            c = VGroup(texto(nombre, 30, col), num, texto(desc, 22, GREY_B)).arrange(DOWN, buff=0.35)
+            marco = SurroundingRectangle(c, color=col, buff=0.3, corner_radius=0.15)
+            cajas.add(VGroup(marco, c))
+        cajas.arrange(RIGHT, buff=0.4).move_to([0, -0.2, 0])
+        for c in cajas:
+            self.play(FadeIn(c, shift=UP * 0.2))
+            self.wait(0.6)
+        self.wait(2)
+        limpiar(self, cab)
+
+        # ¿Cómo saber si será exacto? Mirar el denominador
+        subtitulo(self, cab, "¿Exacto o periódico?")
+        cond = texto("Fracción simplificada: si el denominador solo tiene los factores 2 y 5,\n"
+                     "el decimal es exacto. Si tiene otro factor (3, 7, 11...), es periódico.", 26)
+        cond.next_to(cab, DOWN, buff=0.6).to_edge(LEFT, buff=0.6)
+        self.play(FadeIn(cond))
+        casos = [((3, 4), [2, 2], True, "0,75"), ((7, 20), [2, 2, 5], True, "0,35"),
+                 ((5, 6), [2, 3], False, "0,8333..."), ((4, 15), [3, 5], False, "0,2666...")]
+        fila_y = [0.6, -0.5, -1.6, -2.7]
+        for ((n, d), fact, exacto, dec), y in zip(casos, fila_y):
+            fr = fraccion(n, d, 40).move_to([-5.6, y, 0])
+            den = MathTex(f"{d} =", font_size=40).move_to([-4.2, y, 0])
+            piezas = VGroup(*[pieza(pp, 0.27) for pp in fact]).arrange(RIGHT, buff=0.15).next_to(den, RIGHT, buff=0.25)
+            self.play(FadeIn(fr), FadeIn(den), LaggedStart(*[GrowFromCenter(pz) for pz in piezas], lag_ratio=0.2),
+                      run_time=0.9)
+            veredicto = texto("solo 2 y 5 → exacto" if exacto else "tiene un 3 → periódico", 26,
+                              OK if exacto else COLOR_PERIODO).move_to([0.9, y, 0], aligned_edge=LEFT)
+            veredicto.align_to([-1.0, 0, 0], LEFT)
+            valor = MathTex(tx(dec), font_size=40, color=OK if exacto else COLOR_PERIODO)
+            valor.move_to([4.6, y, 0], aligned_edge=LEFT)
+            self.play(FadeIn(veredicto, shift=RIGHT * 0.2))
+            self.play(Write(valor), run_time=0.7)
+            self.wait(0.6)
+        por_que = texto("¿Por qué? Porque contamos de 10 en 10, y 10 = 2 · 5", 24, ACENTO).to_edge(DOWN, buff=0.15)
+        self.play(FadeIn(por_que))
+        self.wait(3)
+        limpiar(self, cab)
+
+        # Truncar o redondear
+        subtitulo(self, cab, "Truncar o redondear")
+        n = periodico("0", "", "6", 70).move_to([0, 1.8, 0])
+        igual = VGroup(fraccion(2, 3, 56), MathTex(r"= 0{,}6666\ldots =", font_size=56)).arrange(RIGHT, buff=0.25)
+        igual.next_to(n, LEFT, buff=0.25)
+        VGroup(igual, n).move_to([0, 1.8, 0])
+        self.play(Write(igual), Write(n))
+        t1 = VGroup(texto("Truncar a las centésimas:", 28, COLOR_ANTE),
+                    MathTex(r"0{,}66", r"\,|\,66\ldots", font_size=56)).arrange(RIGHT, buff=0.4)
+        t1[1][1].set_color(GREY_D)
+        t1.move_to([0, 0.3, 0])
+        self.play(FadeIn(t1[0]), Write(t1[1]))
+        tij = texto("cortamos y tiramos el resto", 22, GREY_B).next_to(t1, DOWN, buff=0.15)
+        self.play(FadeIn(tij))
+        t2 = VGroup(texto("Redondear a las centésimas:", 28, ACENTO),
+                    MathTex(r"0{,}6", r"6", r"6\ldots", r"\approx 0{,}67", font_size=56)).arrange(RIGHT, buff=0.4)
+        t2.move_to([0, -1.4, 0])
+        self.play(FadeIn(t2[0]), Write(t2[1][:3]))
+        self.play(Indicate(t2[1][2], color=ACENTO, scale_factor=1.5))
+        self.play(Write(t2[1][3]))
+        cerca = texto("6 ≥ 5: subimos 1. 0,67 está más cerca de 0,666... que 0,66", 24, GREY_B)
+        cerca.next_to(t2, DOWN, buff=0.15)
+        self.play(FadeIn(cerca))
         self.wait(3)
 
 

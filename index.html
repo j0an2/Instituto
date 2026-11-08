@@ -109,11 +109,13 @@
   .now .t { font-size: 22px; font-weight: 650; margin: 0; }
   .now .m { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
   .controls { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-  button.btn {
+  .btn {
     font: inherit; font-size: 14px; padding: 8px 14px; border-radius: 10px; cursor: pointer;
     background: var(--surface); color: var(--text); border: 1px solid var(--line);
+    text-decoration: none; display: inline-flex; align-items: center;
   }
-  button.btn:hover:not(:disabled) { border-color: var(--c, var(--accent)); }
+  .btn:hover:not(:disabled) { border-color: var(--c, var(--accent)); }
+  .controls .sep { flex: 1; }
   button.btn:disabled { opacity: .4; cursor: default; }
 
   .list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
@@ -186,12 +188,18 @@
    "temas" en la entrada correspondiente de VIDEOS.
    Clave: "<curso>/<asignatura>"
    ====================================================== */
+const MASCOTAS_ASIG = {
+  mat: "assets/mascota/1eso_mat.webp", fq: "assets/mascota/1eso_fq.webp",
+  bg:  "assets/mascota/1eso_bg.webp",  gh: "assets/mascota/1eso_gh.webp",
+};
+
 const CURSOS = [
+  // asignaturas: las que tiene el curso (si no se pone, salen todas)
+  // mascotas: imagen de cada asignatura (tarjeta y cabecera)
   { id: "1eso",   corto: "1º", nombre: "1º ESO",          etapa: "ESO", mascota: "assets/mascota/1eso_saluda.webp",
-    // mascota de cada asignatura (tarjeta y cabecera): assets/mascota/<curso>_<asignatura>.webp
-    mascotas: { mat: "assets/mascota/1eso_mat.webp", fq: "assets/mascota/1eso_fq.webp",
-                bg: "assets/mascota/1eso_bg.webp",   gh: "assets/mascota/1eso_gh.webp" } },
-  { id: "2eso",   corto: "2º", nombre: "2º ESO",          etapa: "ESO" },
+    asignaturas: ["mat", "bg", "gh"], mascotas: MASCOTAS_ASIG },
+  { id: "2eso",   corto: "2º", nombre: "2º ESO",          etapa: "ESO", mascota: "assets/mascota/1eso_saluda.webp",
+    asignaturas: ["mat", "fq", "gh"], mascotas: MASCOTAS_ASIG },
   { id: "3eso",   corto: "3º", nombre: "3º ESO",          etapa: "ESO" },
   { id: "4eso",   corto: "4º", nombre: "4º ESO",          etapa: "ESO" },
   { id: "1bach",  corto: "1º", nombre: "1º Bachillerato", etapa: "Bachillerato" },
@@ -274,8 +282,28 @@ const VIDEOS = {
       { titulo: "Multiplicar decimales", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/3.MultiplicarDecimales.mp4" },
       { titulo: "Dividir decimales", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/4.DividirDecimales.mp4" },
       { titulo: "De fracción a decimal y redondeo", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/5.FraccionADecimal.mp4" },
-      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/6.EjerciciosEjemplo.mp4" },
-      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/7.EjerciciosResueltos.mp4" },
+      { titulo: "Decimales periódicos", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/6.DecimalesPeriodicos.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/7.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t08_operaciones_decimales/8.EjerciciosResueltos.mp4" },
+    ]},
+    { tema: "Tema 9 · Potencias y raíces cuadradas", videos: [
+      { titulo: "¿Qué es una potencia?", src: "1ESO/Matematicas/videos/t09_potencias_raices/1.QueEsUnaPotencia.mp4" },
+      { titulo: "Al cuadrado y al cubo", src: "1ESO/Matematicas/videos/t09_potencias_raices/2.CuadradosYCubos.mp4" },
+      { titulo: "Potencias de números negativos", src: "1ESO/Matematicas/videos/t09_potencias_raices/3.PotenciasEnteros.mp4" },
+      { titulo: "Cuadrados perfectos", src: "1ESO/Matematicas/videos/t09_potencias_raices/4.CuadradosPerfectos.mp4" },
+      { titulo: "La raíz cuadrada", src: "1ESO/Matematicas/videos/t09_potencias_raices/5.RaizCuadrada.mp4" },
+      { titulo: "Raíces aproximadas", src: "1ESO/Matematicas/videos/t09_potencias_raices/6.RaizAproximada.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t09_potencias_raices/7.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t09_potencias_raices/8.EjerciciosResueltos.mp4" },
+    ]},
+    { tema: "Tema 10 · Jerarquía de las operaciones", videos: [
+      { titulo: "¿Por qué hace falta un orden?", src: "1ESO/Matematicas/videos/t10_jerarquia/1.PorQueUnOrden.mp4" },
+      { titulo: "Mismo nivel: de izquierda a derecha", src: "1ESO/Matematicas/videos/t10_jerarquia/2.MismoNivel.mp4" },
+      { titulo: "Paréntesis y corchetes", src: "1ESO/Matematicas/videos/t10_jerarquia/3.Parentesis.mp4" },
+      { titulo: "Resolver paso a paso", src: "1ESO/Matematicas/videos/t10_jerarquia/4.PasoAPaso.mp4" },
+      { titulo: "Errores típicos", src: "1ESO/Matematicas/videos/t10_jerarquia/5.ErroresTipicos.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "1ESO/Matematicas/videos/t10_jerarquia/6.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos", src: "1ESO/Matematicas/videos/t10_jerarquia/7.EjerciciosResueltos.mp4" },
     ]},
   ],
   // AUTO>>
@@ -288,6 +316,8 @@ const el = (h) => { const t = document.createElement("template"); t.innerHTML = 
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 const count = (key) => (VIDEOS[key] || []).reduce((n, t) => n + t.videos.length, 0);
 const plural = (n) => n === 1 ? "1 vídeo" : n + " vídeos";
+const asignaturasDe = (curso) => curso.asignaturas
+  ? curso.asignaturas.map(id => ASIGNATURAS.find(a => a.id === id)) : ASIGNATURAS;
 
 function crumbs(parts) {
   const items = [`<a href="#/">Inicio</a>`];
@@ -312,7 +342,7 @@ function hero(titulo, lead, curso, frase, color, img) {
 function viewHome() {
   document.title = "Vídeos de clase";
   const grupo = (etapa) => CURSOS.filter(c => c.etapa === etapa).map(c => {
-    const n = ASIGNATURAS.reduce((s, a) => s + count(c.id + "/" + a.id), 0);
+    const n = asignaturasDe(c).reduce((s, a) => s + count(c.id + "/" + a.id), 0);
     return `<a class="card" href="#/${c.id}">
       <div class="big">${c.corto}</div>
       <div class="sub">${esc(c.nombre)}</div>
@@ -329,7 +359,7 @@ function viewHome() {
 
 function viewCurso(curso) {
   document.title = curso.nombre;
-  const cards = ASIGNATURAS.map(a => {
+  const cards = asignaturasDe(curso).map(a => {
     const n = count(curso.id + "/" + a.id);
     const img = (curso.mascotas || {})[a.id];
     return `<a class="card${img ? " con-img" : ""}" href="#/${curso.id}/${a.id}" style="--c:${a.color}">
@@ -381,6 +411,9 @@ function viewAsignatura(curso, asig, startIndex) {
         <div class="controls">
           <button class="btn" id="prev">← Anterior</button>
           <button class="btn" id="next">Siguiente →</button>
+          <span class="sep"></span>
+          <a class="btn" id="dl-vid" download>⬇ Descargar vídeo</a>
+          <a class="btn" id="dl-py" download title="Código Manim de todo el tema (necesita estilo.py)">⬇ Código Python</a>
         </div>
       </div>
       <aside class="list">${lista}</aside>
@@ -395,6 +428,14 @@ function viewAsignatura(curso, asig, startIndex) {
     cur = i;
     const v = flat[i];
     vid.src = encodeURI(v.src);
+    // .../videos/tNN_tema/N.Escena.mp4  ->  .../codigo/tNN_tema.py
+    const partes = v.src.split("/");
+    const py = [...partes.slice(0, -3), "codigo", partes.at(-2) + ".py"].join("/");
+    const dv = document.getElementById("dl-vid"), dp = document.getElementById("dl-py");
+    dv.href = encodeURI(v.src);
+    dv.download = `${partes.at(-2)}_${partes.at(-1)}`;
+    dp.href = encodeURI(py);
+    dp.download = partes.at(-2) + ".py";
     document.getElementById("vt").textContent = v.titulo;
     document.getElementById("vm").textContent = `${v.tema} · vídeo ${v.local} de ${v.total}`;
     buttons.forEach(b => b.classList.toggle("active", +b.dataset.i === i));
@@ -420,7 +461,7 @@ function viewAsignatura(curso, asig, startIndex) {
 function route() {
   const [c, a, n] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   const curso = CURSOS.find(x => x.id === c);
-  const asig = ASIGNATURAS.find(x => x.id === a);
+  const asig = curso && asignaturasDe(curso).find(x => x.id === a);
   document.body.dataset.asig = curso && asig ? asig.id : "";
   if (curso && asig) viewAsignatura(curso, asig, Math.max(0, (parseInt(n, 10) || 1) - 1));
   else if (curso) viewCurso(curso);

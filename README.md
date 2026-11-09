@@ -1,6 +1,6 @@
 # Instituto · Vídeos de clase
 
-Vídeos animados para explicar las Matemáticas de **1.º de ESO** (currículo de la Comunitat Valenciana),
+Vídeos animados para explicar las Matemáticas de **1.º y 2.º de ESO** (currículo de la Comunitat Valenciana),
 hechos con [Manim](https://www.manim.community/). Explicaciones visuales, paso a paso, con ejercicios resueltos
 al final de cada tema.
 
@@ -11,15 +11,26 @@ al final de cada tema.
 | Tema | Vídeos |
 |---|---|
 | 1 · Divisibilidad | Múltiplos y divisores, primos y compuestos, criterios de divisibilidad, criba de Eratóstenes |
-| 2 · Factores primos, M.C.D. y m.c.m. | Árbol de factores, divisiones sucesivas, múltiplos y divisores comunes, M.C.D. y m.c.m., problemas, ejercicios |
+| 2 · Factores primos, M.C.D. y m.c.m. | Árbol de factores, divisiones sucesivas, múltiplos y divisores comunes, M.C.D. y m.c.m., problemas, ejercicios y una actividad interactiva para practicar con tus propios números |
 | 3 · Números enteros | Para qué sirven, la recta, opuesto y valor absoluto, comparar y ordenar, ejercicios |
 | 4 · Operaciones con enteros | Sumar en la recta y con fichas, restar, sumas y restas combinadas, multiplicar (regla de los signos), dividir, ejercicios |
 | 5 · Fracciones equivalentes | Qué es una fracción, equivalentes, amplificar y simplificar, comparar, ordenar, ejercicios |
 | 6 · Números decimales | Décimas y centésimas, valor de cada cifra, decimales en la recta, comparar, ordenar, ejercicios |
 | 7 · Operaciones con fracciones | Sumar y restar (mismo y distinto denominador), fracción de una cantidad, multiplicar, dividir, ejercicios |
-| 8 · Operaciones con decimales | Sumar y restar, por 10, 100 y 1000, multiplicar, dividir, de fracción a decimal y redondeo, ejercicios |
+| 8 · Operaciones con decimales | Sumar y restar, por 10, 100 y 1000, multiplicar, dividir, de fracción a decimal y redondeo, decimales periódicos, ejercicios |
+| 9 · Potencias y raíces cuadradas | Qué es una potencia, al cuadrado y al cubo, potencias de números negativos, cuadrados perfectos, la raíz cuadrada, raíces aproximadas, ejercicios |
+| 10 · Jerarquía de las operaciones | Por qué hace falta un orden, mismo nivel de izquierda a derecha, paréntesis y corchetes, resolver paso a paso, errores típicos, ejercicios |
 
-Próximamente: potencias y raíces, jerarquía de las operaciones, álgebra, geometría, funciones y estadística.
+Próximamente: álgebra, geometría, funciones y estadística.
+
+## Temas de 2.º ESO · Matemáticas
+
+| Tema | Vídeos |
+|---|---|
+| 1 · Números enteros | Naturales y divisibilidad (repaso), positivos y negativos, suma y resta, multiplicación y división, potencias y raíces cuadradas, operaciones con potencias, operaciones combinadas, ejercicios |
+| 2 · Fracciones y números decimales | Fracciones (repaso), suma y resta, multiplicación y división, potencias, operaciones combinadas, fracciones y decimales, ¿por qué sale exacto o periódico? (extra), de decimal periódico a fracción, operaciones combinadas con decimales, raíces cuadradas con decimales, notación científica, ejercicios |
+
+Próximamente: más temas de 2.º ESO.
 
 ## Cómo está organizado
 
@@ -29,10 +40,15 @@ La carpeta sigue la misma estructura que la web: **curso → asignatura → víd
 index.html                    ← la web
 assets/                       ← recursos de la web (mascotas, fórmulas del fondo)
 1ESO/
-├── mascota/                  ← Xola, la mascota del curso (imágenes finales + PROMPTS.txt)
+├── mascota/                  ← Xola, la mascota del curso (poses, asignaturas y PROMPTS.txt)
 └── Matematicas/
     ├── videos/<tema>/        ← vídeos finales (1080p)
+    ├── interactivos/         ← actividades interactivas (HTML) que aparecen en la lista de vídeos
     └── codigo/               ← escenas de Manim (un archivo por tema) y utilidades
+2ESO/
+└── Matematicas/
+    ├── videos/<tema>/        ← vídeos finales (1080p)
+    └── codigo/               ← escenas de 2.º (reutilizan estilo.py y utilidades de 1.º)
 ```
 
 ## Generar los vídeos
@@ -45,3 +61,4 @@ python publicar.py t03_enteros.py                  # renderizar en 1080p y actua
 ```
 
 `publicar.py` deja los vídeos numerados en `videos/<tema>/` y reescribe la lista de vídeos de `index.html`.
+Para 2.º ESO se hace igual desde `2ESO/Matematicas/codigo` (su `publicar.py` llama al de 1.º).

@@ -41,6 +41,7 @@
     }
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html, body { margin: 0; }
   body {
     background: var(--bg);
@@ -105,6 +106,9 @@
   @media (max-width: 860px) { .player { grid-template-columns: 1fr; } }
   .stage { background: #000; border-radius: var(--radius); overflow: hidden; aspect-ratio: 16 / 9; }
   .stage video { width: 100%; height: 100%; display: block; background: #000; }
+  /* Actividades interactivas (tipo: "web"): la página va dentro del reproductor y ajusta su altura */
+  .stage.web { aspect-ratio: auto; background: transparent; border-radius: 0; }
+  .stage iframe { width: 100%; height: 80vh; border: 0; display: block; background: transparent; }
   .now { margin-top: 14px; }
   .now .t { font-size: 22px; font-weight: 650; margin: 0; }
   .now .m { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
@@ -145,6 +149,7 @@
   .list li button:hover { background: var(--surface-2); }
   .list li button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
   .list li button .n { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 1.6em; font-size: 13px; }
+  .list li button .n.x { color: var(--c, var(--accent)); font-weight: 600; }
   .list li button.active { background: color-mix(in srgb, var(--c) 14%, transparent); font-weight: 600; }
   .list li button.active .n { color: var(--c); }
   .list .topic + .topic { border-top: 1px solid var(--line); }
@@ -227,6 +232,7 @@ const VIDEOS = {
       { titulo: "Divisiones sucesivas", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/2.DivisionesSucesivas.mp4" },
       { titulo: "Múltiplos y divisores comunes", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/3.ComunesRecta.mp4" },
       { titulo: "M.C.D. y m.c.m. con factores", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/4.McdMcmFactores.mp4" },
+      { titulo: "Pruébalo tú: factores, M.C.D. y m.c.m.", src: "1ESO/Matematicas/interactivos/factores_mcd_mcm.html?m=mcd", extra: "E1", tipo: "web" },
       { titulo: "Problemas: ¿M.C.D. o m.c.m.?", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/5.ProblemasMcdMcm.mp4" },
       { titulo: "Ejercicios: enunciados y ejemplo resuelto", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/6.EjerciciosEjemplo.mp4" },
       { titulo: "Ejercicios resueltos (b – h)", src: "1ESO/Matematicas/videos/t02_factores_mcd_mcm/7.EjerciciosResueltos.mp4" },
@@ -307,6 +313,40 @@ const VIDEOS = {
     ]},
   ],
   // AUTO>>
+  // <<AUTO 2eso/mat · generado por publicar.py, no editar a mano
+  "2eso/mat": [
+    { tema: "Tema 1 · Números enteros", videos: [
+      { titulo: "Naturales y divisibilidad (repaso)", src: "2ESO/Matematicas/videos/t01_enteros/1.NaturalesDivisibilidad.mp4" },
+      { titulo: "Números positivos y negativos", src: "2ESO/Matematicas/videos/t01_enteros/2.PositivosNegativos.mp4" },
+      { titulo: "Suma y resta de enteros", src: "2ESO/Matematicas/videos/t01_enteros/3.SumaResta.mp4" },
+      { titulo: "Multiplicación y división de enteros", src: "2ESO/Matematicas/videos/t01_enteros/4.MultiplicacionDivision.mp4" },
+      { titulo: "Potencias y raíces cuadradas", src: "2ESO/Matematicas/videos/t01_enteros/5.PotenciasRaices.mp4" },
+      { titulo: "Operaciones con potencias: misma base", src: "2ESO/Matematicas/videos/t01_enteros/6.MismaBase.mp4" },
+      { titulo: "Potencia de una potencia y mismo exponente", src: "2ESO/Matematicas/videos/t01_enteros/7.PotenciaDePotencia.mp4" },
+      { titulo: "Operaciones combinadas", src: "2ESO/Matematicas/videos/t01_enteros/8.OperacionesCombinadas.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "2ESO/Matematicas/videos/t01_enteros/9.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos (1 – 5)", src: "2ESO/Matematicas/videos/t01_enteros/10.EjerciciosResueltos1.mp4" },
+      { titulo: "Ejercicios resueltos (6 – 9)", src: "2ESO/Matematicas/videos/t01_enteros/11.EjerciciosResueltos2.mp4" },
+    ]},
+    { tema: "Tema 2 · Fracciones y números decimales", videos: [
+      { titulo: "Fracciones (repaso)", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/1.Fracciones.mp4" },
+      { titulo: "Suma y resta de fracciones", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/2.SumaResta.mp4" },
+      { titulo: "Multiplicación y división de fracciones", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/3.MultiplicarDividir.mp4" },
+      { titulo: "Potencias de fracciones", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/4.PotenciasFracciones.mp4" },
+      { titulo: "Operaciones combinadas con fracciones", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/5.CombinadasFracciones.mp4" },
+      { titulo: "Fracciones y números decimales", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/6.FraccionesDecimales.mp4" },
+      { titulo: "¿Por qué sale exacto o periódico?", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/E1.PorQuePeriodico.mp4", extra: "E1" },
+      { titulo: "De decimal periódico a fracción", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/7.FraccionGeneratriz.mp4" },
+      { titulo: "Operaciones combinadas con decimales", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/8.CombinadasDecimales.mp4" },
+      { titulo: "Raíces cuadradas con decimales", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/9.RaicesDecimales.mp4" },
+      { titulo: "Notación científica: números grandes", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/10.NotacionCientifica.mp4" },
+      { titulo: "Operaciones en notación científica", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/11.OperacionesNotacion.mp4" },
+      { titulo: "Ejercicios: enunciados y ejemplos resueltos", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/12.EjerciciosEjemplo.mp4" },
+      { titulo: "Ejercicios resueltos (1 – 7)", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/13.EjerciciosResueltos1.mp4" },
+      { titulo: "Ejercicios resueltos (9 – 13)", src: "2ESO/Matematicas/videos/t02_fracciones_decimales/14.EjerciciosResueltos2.mp4" },
+    ]},
+  ],
+  // AUTO>>
 };
 
 /* ====================================================== */
@@ -314,7 +354,7 @@ const VIDEOS = {
 const app = document.getElementById("app");
 const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content; };
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
-const count = (key) => (VIDEOS[key] || []).reduce((n, t) => n + t.videos.length, 0);
+const count = (key) => (VIDEOS[key] || []).reduce((n, t) => n + t.videos.filter(v => v.tipo !== "web").length, 0);
 const plural = (n) => n === 1 ? "1 vídeo" : n + " vídeos";
 const asignaturasDe = (curso) => curso.asignaturas
   ? curso.asignaturas.map(id => ASIGNATURAS.find(a => a.id === id)) : ASIGNATURAS;
@@ -389,24 +429,31 @@ function viewAsignatura(curso, asig, startIndex) {
     return;
   }
 
+  // Los vídeos extra (v.extra = "E1"...) llevan su etiqueta y no cuentan en la numeración del tema
   const flat = [];
-  temas.forEach((t, ti) => t.videos.forEach((v, vi) =>
-    flat.push({ ...v, tema: t.tema, t: ti, local: vi + 1, total: t.videos.length })));
+  temas.forEach((t, ti) => {
+    let n = 0;
+    t.normales = t.videos.filter(v => !v.extra).length;
+    t.extras = t.videos.length - t.normales;
+    t.videos.forEach(v => { v.n = v.extra || ++n;
+      flat.push({ ...v, tema: t.tema, t: ti, local: v.n, total: t.normales }); });
+  });
 
   // Acordeón: un <details> por tema; name="temas" deja solo uno abierto a la vez
   let idx = 0;
   const lista = temas.map((t, ti) => `<details class="topic" name="temas" data-t="${ti}">
       <summary><span class="chev" aria-hidden="true"></span><span class="tt">${esc(t.tema)}</span>
-        <span class="cnt">${plural(t.videos.length)}</span></summary>
+        <span class="cnt">${plural(t.normales)}${t.extras ? ` + ${t.extras} extra` : ""}</span></summary>
       <ol>${t.videos.map((v, vi) => { const i = idx++;
-        return `<li><button data-i="${i}"><span class="n">${vi + 1}</span><span>${esc(v.titulo)}</span></button></li>`;
+        return `<li><button data-i="${i}"><span class="n${v.extra ? " x" : ""}">${v.n}</span><span>${esc(v.titulo)}</span></button></li>`;
       }).join("")}</ol>
     </details>`).join("");
 
   app.replaceChildren(el(`${head}
     <div class="player" style="--c:${asig.color}">
       <div>
-        <div class="stage"><video id="vid" controls playsinline preload="metadata"></video></div>
+        <div class="stage" id="stage"><video id="vid" controls playsinline preload="metadata"></video>
+          <iframe id="web" hidden title="Actividad interactiva"></iframe></div>
         <div class="now"><p class="t" id="vt"></p><p class="m" id="vm"></p></div>
         <div class="controls">
           <button class="btn" id="prev">← Anterior</button>
@@ -414,6 +461,7 @@ function viewAsignatura(curso, asig, startIndex) {
           <span class="sep"></span>
           <a class="btn" id="dl-vid" download>⬇ Descargar vídeo</a>
           <a class="btn" id="dl-py" download title="Código Manim de todo el tema (necesita estilo.py)">⬇ Código Python</a>
+          <a class="btn" id="abrir" target="_blank" rel="noopener" hidden>↗ Abrir en pantalla completa</a>
         </div>
       </div>
       <aside class="list">${lista}</aside>
@@ -427,7 +475,19 @@ function viewAsignatura(curso, asig, startIndex) {
     i = Math.max(0, Math.min(flat.length - 1, i));
     cur = i;
     const v = flat[i];
-    vid.src = encodeURI(v.src);
+    const web = v.tipo === "web", marco = document.getElementById("web");
+    document.getElementById("stage").classList.toggle("web", web);
+    vid.hidden = web; marco.hidden = !web;
+    ["dl-vid", "dl-py"].forEach(id => document.getElementById(id).hidden = web);
+    document.getElementById("abrir").hidden = !web;
+    if (web) {
+      vid.pause(); vid.removeAttribute("src"); vid.load();
+      marco.src = encodeURI(v.src) + (v.src.includes("?") ? "&" : "?") + "embed=1";
+      document.getElementById("abrir").href = encodeURI(v.src);
+    } else {
+      if (marco.getAttribute("src")) marco.removeAttribute("src");
+      vid.src = encodeURI(v.src);
+    }
     // .../videos/tNN_tema/N.Escena.mp4  ->  .../codigo/tNN_tema.py
     const partes = v.src.split("/");
     const py = [...partes.slice(0, -3), "codigo", partes.at(-2) + ".py"].join("/");
@@ -437,7 +497,9 @@ function viewAsignatura(curso, asig, startIndex) {
     dp.href = encodeURI(py);
     dp.download = partes.at(-2) + ".py";
     document.getElementById("vt").textContent = v.titulo;
-    document.getElementById("vm").textContent = `${v.tema} · vídeo ${v.local} de ${v.total}`;
+    document.getElementById("vm").textContent = web ? `${v.tema} · actividad interactiva (${v.extra})`
+                                              : v.extra ? `${v.tema} · vídeo extra (${v.extra})`
+                                                          : `${v.tema} · vídeo ${v.local} de ${v.total}`;
     buttons.forEach(b => b.classList.toggle("active", +b.dataset.i === i));
     app.querySelectorAll(".list details").forEach(d => {
       const mine = +d.dataset.t === v.t;
@@ -447,7 +509,7 @@ function viewAsignatura(curso, asig, startIndex) {
     document.getElementById("prev").disabled = i === 0;
     document.getElementById("next").disabled = i === flat.length - 1;
     history.replaceState(null, "", `#/${curso.id}/${asig.id}/${i + 1}`);
-    if (autoplay) vid.play().catch(() => {});
+    if (autoplay && !web) vid.play().catch(() => {});
   }
 
   buttons.forEach(b => b.addEventListener("click", () => load(+b.dataset.i, true)));
@@ -457,6 +519,13 @@ function viewAsignatura(curso, asig, startIndex) {
 
   load(startIndex, false);
 }
+
+// Las actividades interactivas (dentro de un iframe) nos dicen cuánto miden
+addEventListener("message", (e) => {
+  const marco = document.getElementById("web");
+  if (marco && e.source === marco.contentWindow && e.data && e.data.tipo === "altura")
+    marco.style.height = Math.ceil(e.data.h) + "px";
+});
 
 function route() {
   const [c, a, n] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);

@@ -29,6 +29,11 @@ TITULOS = {
     "EjerciciosEjemplo": "Ejercicios: enunciados y ejemplo resuelto",
     "EjerciciosResueltos": "Ejercicios resueltos (b – h)",
 }
+# Extras que no son vídeos (publicar.py los pone en la web):
+#   (etiqueta, título, ruta desde la carpeta de la asignatura, detrás de qué escena)
+INTERACTIVOS = [
+    ("E1", "Pruébalo tú: factores, M.C.D. y m.c.m.", "interactivos/factores_mcd_mcm.html?m=mcd", "McdMcmFactores"),
+]
 
 ROSA = "#FF79C6"
 RANA_A = TEAL

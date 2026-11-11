@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fórmula de segundo grado</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f5f1; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6a65; --line: #dddad2; --accent: #2f5d8a;
+    --error: #b3261e; --fondo: #1e1e2e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; --error: #f2b8b5; }
+  }
+  :root[data-theme="dark"] { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; --error: #f2b8b5; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: clamp(24px, 4vw, 32px); margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px;
+           display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; }
+  .panel label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 20px; }
+  .panel input { width: 76px; font: 20px "Cambria Math", "Times New Roman", serif; padding: 4px 8px; border: 1px solid var(--line);
+                 border-radius: 8px; background: var(--bg); color: var(--text); }
+  .la { color: #3f8fcf; } .lb { color: #d4479f; } .lc { color: #3f9f5a; }
+  button { border: 1px solid var(--line); background: none; color: var(--text); font: inherit; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.prim { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .error { color: var(--error); width: 100%; margin: 0; min-height: 1.4em; font-size: 14px; }
+  .lienzo { background: var(--fondo); border-radius: 14px; padding: 16px 12px; color: #fff; }
+  .paso { display: grid; grid-template-columns: 34px 1fr; gap: 4px 10px; padding: 10px 6px; border-bottom: 1px solid #2c2c40;
+          animation: entra .35s ease; }
+  .paso:last-child { border-bottom: none; }
+  .num { width: 28px; height: 28px; border-radius: 50%; background: #2f5d8a; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .tit { font-weight: 600; color: #F7D96F; }
+  .exp { grid-column: 2; color: #bbb; font-size: 15px; }
+  .mat { grid-column: 2; overflow-x: auto; overflow-y: hidden; padding: 4px 0; font-size: clamp(15px, 3.2vw, 20px); }
+  .final { border: 2px solid #F7D96F; border-radius: 10px; margin-top: 8px; }
+  .controles { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .controles button { color: #fff; border-color: #555; }
+  .controles button.prim { background: #2f5d8a; border-color: #2f5d8a; }
+  @keyframes entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  html.embed body { background: transparent; }
+  .embed h1, .embed .lead { display: none; }
+  .embed .wrap { padding: 0; max-width: none; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <h1>La fórmula de segundo grado</h1>
+  <p class="lead">Escribe a, b y c y mira cómo se resuelve ax² + bx + c = 0 paso a paso.</p>
+  <div class="panel">
+    <label><span class="la">a =</span> <input id="ia" type="number" value="1" step="1"></label>
+    <label><span class="lb">b =</span> <input id="ib" type="number" value="-5" step="1"></label>
+    <label><span class="lc">c =</span> <input id="ic" type="number" value="6" step="1"></label>
+    <button id="bAzar" class="prim">🎲 Aleatorio</button>
+    <p class="error" id="error"></p>
+  </div>
+  <div class="lienzo" id="lienzo">
+    <div id="pasos"></div>
+    <div class="controles">
+      <button id="bAnt">◀ Anterior</button>
+      <button id="bSig" class="prim">Siguiente ▶</button>
+      <button id="bTodo">Ver todo</button>
+      <button id="bReset">Empezar de nuevo</button>
+    </div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const CA = "#5DADE2", CB = "#FF79C6", CC = "#7BD88F", CX = "#F7D96F";
+const col = (c, t) => `\\textcolor{${c}}{${t}}`;
+const X = col(CX, "x");
+const par = n => n < 0 ? `(${n})` : `${n}`;          // negativos entre paréntesis
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a; };
+
+// fracción n/d simplificada en TeX
+function frac(n, d) {
+  if (d < 0) { n = -n; d = -d; }
+  const g = gcd(n, d) || 1; n /= g; d /= g;
+  if (d === 1) return `${n}`;
+  return (n < 0 ? "-" : "") + `\\frac{${Math.abs(n)}}{${d}}`;
+}
+// término de la ecuación con su signo
+function termino(c, t, primero) {
+  if (c === 0) return "";
+  const s = c < 0 ? "-" : (primero ? "" : "+");
+  const a = Math.abs(c);
+  return s + (t && a === 1 ? "" : a) + t;
+}
+function ecuacion(a, b, c) {
+  let s = termino(a, `${X}^{2}`, true);
+  s += termino(b, X, false) + termino(c, "", false);
+  return s + "=0";
+}
+
+let pasos = [], paso = 1;
+
+function construir() {
+  const a = Math.round(+$("#ia").value), b = Math.round(+$("#ib").value), c = Math.round(+$("#ic").value);
+  $("#error").textContent = "";
+  if (!a) { $("#error").textContent = "Si a = 0 no hay x²: no es una ecuación de segundo grado."; $("#lienzo").hidden = true; avisar(); return; }
+  $("#lienzo").hidden = false;
+  const A = col(CA, par(a)), B = col(CB, par(b)), C = col(CC, par(c));
+  const d = b * b - 4 * a * c;
+  pasos = [];
+  pasos.push(["La ecuación", "Todo en un miembro e igualado a 0.", ecuacion(a, b, c)]);
+  pasos.push(["Identificamos a, b y c", "¡Con su signo! Si falta un término, su coeficiente es 0.",
+    `${col(CA, "a = " + a)},\\qquad ${col(CB, "b = " + b)},\\qquad ${col(CC, "c = " + c)}`]);
+  pasos.push(["La fórmula", "Sirve para todas las ecuaciones de segundo grado.",
+    `${X} = \\frac{-${col(CB, "b")} \\pm \\sqrt{${col(CB, "b")}^{2} - 4${col(CA, "a")}${col(CC, "c")}}}{2${col(CA, "a")}}`]);
+  pasos.push(["Sustituimos", "Los números negativos, entre paréntesis.",
+    `${X} = \\frac{-${col(CB, b < 0 ? `(${b})` : b)} \\pm \\sqrt{${B}^{2} - 4\\cdot ${A}\\cdot ${C}}}{2\\cdot ${A}}`]);
+  const b2 = b * b, cuatro = 4 * a * c;
+  pasos.push(["El discriminante (lo de dentro de la raíz)",
+    `${par(b)}² = ${b2}   y   4 · ${par(a)} · ${par(c)} = ${cuatro}`.replace(/-/g, "−"),
+    `\\Delta = ${b2} - ${par(cuatro)} = ${d}` + (d > 0 ? "\\;>\\;0" : d < 0 ? "\\;<\\;0" : "")]);
+  if (d < 0) {
+    pasos.push(["Sin solución", "La raíz cuadrada de un número negativo no existe.",
+      `\\sqrt{${d}}\\ \\text{no existe} \\;\\Rightarrow\\; \\text{la ecuación no tiene solución}`, true]);
+  } else {
+    const s = Math.round(Math.sqrt(d)), exacta = s * s === d;
+    const raiz = exacta ? `${s}` : `\\sqrt{${d}}`;
+    const mb = -b;
+    if (d === 0) {
+      pasos.push(["Δ = 0: una sola solución", "Con √0 = 0, el + y el − dan lo mismo (solución doble).",
+        `${X} = \\frac{${mb} \\pm 0}{${2 * a}} = ${frac(mb, 2 * a)}`]);
+      pasos.push(["Solución", "", `${X} = ${frac(mb, 2 * a)}`, true]);
+    } else {
+      pasos.push(["La raíz", exacta ? `${d} es un cuadrado perfecto: √${d} = ${s}.` :
+                  `${d} no es un cuadrado perfecto: dejamos la raíz (≈ ${Math.sqrt(d).toFixed(2).replace(".", ",")}).`,
+        `${X} = \\frac{${mb} \\pm ${raiz}}{${2 * a}}`]);
+      let x1, x2;
+      if (exacta) {
+        x1 = `${X}_{1} = \\frac{${mb} + ${s}}{${2 * a}} = \\frac{${mb + s}}{${2 * a}} = ${frac(mb + s, 2 * a)}`;
+        x2 = `${X}_{2} = \\frac{${mb} - ${s}}{${2 * a}} = \\frac{${mb - s}}{${2 * a}} = ${frac(mb - s, 2 * a)}`;
+      } else {
+        const r1 = (mb + Math.sqrt(d)) / (2 * a), r2 = (mb - Math.sqrt(d)) / (2 * a);
+        const f = v => v.toFixed(2).replace(".", "{,}");
+        x1 = `${X}_{1} = \\frac{${mb} + \\sqrt{${d}}}{${2 * a}} \\approx ${f(r1)}`;
+        x2 = `${X}_{2} = \\frac{${mb} - \\sqrt{${d}}}{${2 * a}} \\approx ${f(r2)}`;
+      }
+      pasos.push(["Dos soluciones: una con + y otra con −", "", `${x1}\\\\[6pt] ${x2}`]);
+      if (exacta) {
+        const sol = [(mb + s) / (2 * a), (mb - s) / (2 * a)];
+        pasos.push(["Soluciones", "", `${X}_{1} = ${frac(mb + s, 2 * a)},\\qquad ${X}_{2} = ${frac(mb - s, 2 * a)}`, true]);
+        const enteras = sol.filter(Number.isInteger);
+        if (enteras.length) {
+          const v = enteras[0];
+          pasos.push(["Comprobación", `Sustituimos x = ${v} en la ecuación.`.replace(/-/g, "−"),
+            `${col(CA, par(a))}\\cdot ${par(v)}^{2} ${b < 0 ? "-" : "+"} ${col(CB, Math.abs(b))}\\cdot ${par(v)} ${c < 0 ? "-" : "+"} ${col(CC, Math.abs(c))} = ${a * v * v} ${b * v < 0 ? "-" : "+"} ${Math.abs(b * v)} ${c < 0 ? "-" : "+"} ${Math.abs(c)} = 0 \\;\\checkmark`]);
+        }
+      } else {
+        pasos.push(["Soluciones (aproximadas)", "Con la calculadora, redondeando a las centésimas.",
+          `${X}_{1} \\approx ${((mb + Math.sqrt(d)) / (2 * a)).toFixed(2).replace(".", "{,}")},\\qquad ${X}_{2} \\approx ${((mb - Math.sqrt(d)) / (2 * a)).toFixed(2).replace(".", "{,}")}`, true]);
+      }
+    }
+  }
+  paso = 1;
+  mostrar();
+}
+
+function mostrar() {
+  const cont = $("#pasos");
+  cont.innerHTML = "";
+  pasos.slice(0, paso).forEach(([tit, exp, tex, fin], i) => {
+    const div = document.createElement("div");
+    div.className = "paso";
+    div.innerHTML = `<div class="num">${i + 1}</div><div class="tit">${tit}</div>` +
+      (exp ? `<div class="exp">${exp}</div>` : "") + `<div class="mat${fin ? " final" : ""}"></div>`;
+    try { katex.render(tex, div.querySelector(".mat"), { displayMode: true, throwOnError: false }); }
+    catch (e) { div.querySelector(".mat").textContent = tex; }
+    cont.appendChild(div);
+  });
+  $("#bAnt").disabled = paso <= 1;
+  $("#bSig").disabled = $("#bTodo").disabled = paso >= pasos.length;
+  avisar();
+}
+
+// ecuaciones al azar (completas: b y c ≠ 0): casi siempre con soluciones enteras; a veces Δ = 0, Δ < 0 o raíz no exacta
+const azar = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+function aleatoria() {
+  let a, b, c;
+  do { [a, b, c] = generar(); } while (b === 0 || c === 0);   // siempre completas
+  $("#ia").value = a; $("#ib").value = b; $("#ic").value = c;
+  construir();
+}
+function generar() {
+  const t = Math.random();
+  let a, b, c;
+  if (t < 0.6) {                                   // a(x − r1)(x − r2)
+    a = [1, 1, 1, 2, -1][azar(0, 4)];
+    const r1 = azar(-6, 6), r2 = azar(-6, 6);
+    b = -a * (r1 + r2); c = a * r1 * r2;
+  } else if (t < 0.72) {                           // cuadrado perfecto
+    a = 1; const r = azar(-5, 5); b = -2 * r; c = r * r;
+  } else if (t < 0.86) {                           // sin solución
+    a = azar(1, 3); b = azar(-4, 4); c = Math.floor(b * b / (4 * a)) + azar(1, 6);
+  } else {                                          // raíz no exacta
+    do { a = 1; b = azar(-6, 6); c = azar(-6, 3); } while (Number.isInteger(Math.sqrt(b * b - 4 * a * c)) || b * b - 4 * a * c < 0);
+  }
+  return [a, b, c];
+}
+
+let avisar = () => {};
+const q = new URLSearchParams(location.search);
+for (const k of ["a", "b", "c"]) if (q.has(k)) $("#i" + k).value = q.get(k);
+if (q.has("embed")) {
+  document.documentElement.classList.add("embed");
+  avisar = () => parent.postMessage({ tipo: "altura", h: $("#wrap").getBoundingClientRect().height + 4 }, "*");
+  addEventListener("resize", avisar);
+}
+$("#bSig").onclick = () => { paso = Math.min(pasos.length, paso + 1); mostrar(); };
+$("#bAnt").onclick = () => { paso = Math.max(1, paso - 1); mostrar(); };
+$("#bTodo").onclick = () => { paso = pasos.length; mostrar(); };
+$("#bReset").onclick = () => { paso = 1; mostrar(); };
+$("#bAzar").onclick = aleatoria;
+["#ia", "#ib", "#ic"].forEach(id => $(id).oninput = construir);
+construir();
+if (q.get("ver") === "todo") { paso = pasos.length; mostrar(); }
+</script>
+</body>
+</html>

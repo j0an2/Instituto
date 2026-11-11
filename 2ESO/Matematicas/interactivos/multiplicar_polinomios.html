@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiplicar polinomios</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6a65; --line: #dddad2; --accent: #2f5d8a;
+    --error: #b3261e; --fondo: #1e1e2e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; --error: #f2b8b5; }
+  }
+  :root[data-theme="dark"] { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; --error: #f2b8b5; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: clamp(24px, 4vw, 32px); margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; }
+  .entradas { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+  .entradas label { display: flex; align-items: center; gap: 8px; font-weight: 600; flex: 1 1 260px; }
+  .entradas input { flex: 1; min-width: 0; font: 20px "Cambria Math", "Times New Roman", serif; padding: 6px 10px;
+                    border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+  .entradas input.mal { border-color: var(--error); }
+  .ayuda { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+  .error { color: var(--error); font-size: 14px; min-height: 1.5em; margin: 4px 0 0; }
+  .ejemplos { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); }
+  button { border: 1px solid var(--line); background: none; color: var(--text); font: inherit; padding: 6px 12px;
+           border-radius: 999px; cursor: pointer; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.prim { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .lienzo { background: var(--fondo); border-radius: 14px; padding: 16px 12px; color: #fff; }
+  .m { font-family: "Cambria Math", "Times New Roman", serif; }
+  .op { text-align: center; font-size: clamp(20px, 4vw, 28px); margin: 0 0 12px; }
+  .tablawrap { overflow-x: auto; display: flex; justify-content: center; }
+  table { border-collapse: collapse; font-size: clamp(16px, 3.2vw, 22px); }
+  th { font-weight: normal; padding: 4px 10px; }
+  td { border: 2px solid #fff; min-width: 76px; height: 52px; text-align: center; padding: 4px 8px; transition: background .3s; }
+  td.oculta span { visibility: hidden; }
+  td.actual { outline: 3px solid #F7D96F; outline-offset: -3px; }
+  th.marca { text-decoration: underline 3px #F7D96F; text-underline-offset: 6px; }
+  td.tenue { opacity: .25; }
+  .explica { text-align: center; min-height: 2.6em; margin: 12px 0 4px; color: #ddd; font-size: clamp(15px, 2.8vw, 18px); }
+  .controles { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .controles button { color: #fff; border-color: #555; }
+  .controles button.prim { background: #2f5d8a; border-color: #2f5d8a; }
+  .agrupa { margin: 12px auto 0; max-width: 620px; font-size: clamp(16px, 3vw, 21px); }
+  .agrupa div { padding: 2px 0; }
+  .resultado { text-align: center; font-size: clamp(19px, 3.8vw, 26px); margin-top: 12px; padding: 8px; border: 2px solid #F7D96F; border-radius: 10px; }
+  .leyenda { text-align: center; font-size: 13px; color: #aaa; margin-top: 10px; }
+  sup { font-size: .65em; }
+  html.embed body { background: transparent; }
+  .embed h1, .embed .lead { display: none; }
+  .embed .wrap { padding: 0; max-width: none; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <h1>Multiplicar polinomios</h1>
+  <p class="lead">Escribe dos polinomios (hasta grado 3) y mira la multiplicación con la tabla de áreas.</p>
+
+  <div class="panel">
+    <div class="entradas">
+      <label>P(x) = <input id="ip" value="2x - 1" autocomplete="off" spellcheck="false"></label>
+      <label>Q(x) = <input id="iq" value="x^2 + x + 3" autocomplete="off" spellcheck="false"></label>
+    </div>
+    <p class="ayuda">Escribe los cuadrados como <b>x^2</b> (o x²) y los cubos como <b>x^3</b>. Coeficientes enteros, por ejemplo: 3x^3 - x + 4</p>
+    <p class="error" id="error"></p>
+    <div class="ejemplos"><button id="bAzar" class="prim">🎲 Aleatorio</button> Ejemplos:
+      <button data-p="x + 3" data-q="x - 2">(x+3)(x−2)</button>
+      <button data-p="x + 2" data-q="x + 2">(x+2)²</button>
+      <button data-p="x + 5" data-q="x - 5">(x+5)(x−5)</button>
+      <button data-p="3x" data-q="2x^2 - x + 4">3x·(2x²−x+4)</button>
+      <button data-p="x^2 - 2x + 3" data-q="x + 2">(x²−2x+3)(x+2)</button>
+      <button data-p="x^3 + 2x - 1" data-q="x^2 - x + 1">grado 3</button>
+    </div>
+  </div>
+
+  <div class="lienzo" id="lienzo">
+    <div class="op m" id="op"></div>
+    <div class="tablawrap"><table class="m" id="tabla"></table></div>
+    <div class="explica m" id="explica"></div>
+    <div class="controles">
+      <button id="bAnt">◀ Anterior</button>
+      <button id="bSig" class="prim">Siguiente ▶</button>
+      <button id="bTodo">Ver todo</button>
+      <button id="bReset">Empezar de nuevo</button>
+    </div>
+    <div class="agrupa m" id="agrupa"></div>
+    <div class="resultado m" id="resultado" hidden></div>
+    <div class="leyenda">Las casillas del mismo color son términos semejantes (mismo grado): se pueden juntar.</div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const COL = { 6: "#F1948A", 5: "#F7DC6F", 4: "#C39BD3", 3: "#FF9F43", 2: "#5DADE2", 1: "#7BD88F", 0: "#E8E8E8" };
+const SUP = { "²": "^2", "³": "^3", "¹": "^1", "⁰": "^0" };
+
+// "2x^2 - 3x + 1" -> {2: 2, 1: -3, 0: 1}; lanza un Error con el motivo si no se entiende
+function leer(txt) {
+  let s = txt.replace(/[²³¹⁰]/g, c => SUP[c]).replace(/[−–]/g, "-").replace(/[·*]/g, "").replace(/X/g, "x").replace(/\s+/g, "");
+  if (!s) throw new Error("está vacío");
+  if (!/^[+-]?[0-9x^]/.test(s)) throw new Error("no lo entiendo");
+  const re = /([+-]?)(\d*)(x(?:\^(\d+))?)?/y;
+  const p = {};
+  let i = 0, n = 0;
+  while (i < s.length) {
+    re.lastIndex = i;
+    const m = re.exec(s);
+    if (!m || m[0] === "" || (m[2] === "" && !m[3])) throw new Error(`no entiendo «${s.slice(i)}»`);
+    if (n > 0 && !m[1]) throw new Error("falta un signo + o − entre dos términos");
+    const c = (m[1] === "-" ? -1 : 1) * (m[2] === "" ? 1 : +m[2]);
+    const d = m[3] ? (m[4] === undefined ? 1 : +m[4]) : 0;
+    if (d > 3) throw new Error("de momento, solo hasta grado 3");
+    p[d] = (p[d] || 0) + c;
+    i = re.lastIndex; n++;
+  }
+  for (const d in p) if (p[d] === 0) delete p[d];
+  if (!Object.keys(p).length) throw new Error("es el polinomio 0");
+  return p;
+}
+
+const grados = p => Object.keys(p).map(Number).sort((a, b) => b - a);
+
+// término con signo: primero = sin "+" delante
+function tt(c, d, primero = false, color = true) {
+  const sg = c < 0 ? "−" : (primero ? "" : "+");
+  const a = Math.abs(c);
+  let cuerpo = d === 0 ? String(a) : (a === 1 ? "" : a) + "x" + (d > 1 ? `<sup>${d}</sup>` : "");
+  const sep = primero || !color ? "" : " ";
+  const h = `${sg}${sep && sg ? " " : ""}${cuerpo}`;
+  return color ? `<span style="color:${COL[d]}">${h}</span>` : h;
+}
+function polHTML(p, color = true) {
+  return grados(p).map((d, i) => tt(p[d], d, i === 0, color)).join(" ");
+}
+const sinSigno = (c, d) => tt(c, d, true);
+
+let P, Q, gp, gq, celdas, paso, total;
+
+function preparar() {
+  let ok = true;
+  $("#error").textContent = "";
+  for (const [id, nom] of [["#ip", "P(x)"], ["#iq", "Q(x)"]]) {
+    try { const r = leer($(id).value); $(id).classList.remove("mal"); if (id === "#ip") P = r; else Q = r; }
+    catch (e) { ok = false; $(id).classList.add("mal"); $("#error").textContent += `${nom}: ${e.message}. `; }
+  }
+  $("#lienzo").hidden = !ok;
+  if (!ok) { celdas = null; avisar(); return; }
+  gp = grados(P); gq = grados(Q);
+  celdas = [];
+  gp.forEach((dp, i) => gq.forEach((dq, j) => celdas.push({ i, j, dp, dq, c: P[dp] * Q[dq], d: dp + dq })));
+  total = celdas.length + 2;     // + paso de agrupar + resultado
+  $("#op").innerHTML = `(${polHTML(P)}) · (${polHTML(Q)})`;
+  let h = "<tr><th>·</th>" + gq.map((d, j) => `<th id="hc${j}">${tt(Q[d], d, true)}</th>`).join("") + "</tr>";
+  gp.forEach((d, i) => {
+    h += `<tr><th id="hf${i}">${tt(P[d], d, true)}</th>`;
+    gq.forEach((_, j) => {
+      const k = i * gq.length + j, ce = celdas[k];
+      h += `<td id="c${k}" data-d="${ce.d}"><span>${tt(ce.c, ce.d, i === 0 && j === 0)}</span></td>`;
+    });
+    h += "</tr>";
+  });
+  $("#tabla").innerHTML = h;
+  document.querySelectorAll("#tabla td").forEach(td => {
+    td.onmouseenter = () => { if (td.classList.contains("oculta")) return;
+      document.querySelectorAll("#tabla td").forEach(o => o.classList.toggle("tenue", o.dataset.d !== td.dataset.d && !o.classList.contains("oculta"))); };
+    td.onmouseleave = () => document.querySelectorAll("#tabla td").forEach(o => o.classList.remove("tenue"));
+  });
+  paso = 0;
+  mostrar();
+}
+
+function explicar(ce) {
+  const a = sinSigno(P[ce.dp], ce.dp), b = sinSigno(Q[ce.dq], ce.dq);
+  const pa = P[ce.dp] < 0 ? `(${a})` : a, pb = Q[ce.dq] < 0 ? `(${b})` : b;
+  let t = `${pa} · ${pb} = ${sinSigno(ce.c, ce.d)}`;
+  const det = [];
+  det.push(`números: ${P[ce.dp]} · ${Q[ce.dq]} = ${ce.c}`.replace(/-/g, "−"));
+  if (ce.dp && ce.dq) det.push(`letras: x<sup>${ce.dp}</sup> · x<sup>${ce.dq}</sup> = x<sup>${ce.d}</sup> (se suman los exponentes)`);
+  return t + `<br><small style="color:#aaa">${det.join(" &nbsp;·&nbsp; ")}</small>`;
+}
+
+function agrupar() {
+  const porGrado = {};
+  celdas.forEach(ce => (porGrado[ce.d] = porGrado[ce.d] || []).push(ce.c));
+  const res = {};
+  let h = "<div style='color:#aaa;font-family:system-ui;font-size:15px'>Juntamos los términos semejantes (mismo color):</div>";
+  Object.keys(porGrado).map(Number).sort((a, b) => b - a).forEach(d => {
+    const l = porGrado[d], s = l.reduce((x, y) => x + y, 0);
+    res[d] = s;
+    let linea = l.map((c, k) => tt(c, d, k === 0)).join(" ");
+    if (l.length > 1) linea += " = " + (s === 0 ? `<span style="color:${COL[d]}">0</span> <small style="color:#aaa">(se anulan)</small>` : sinSigno(s, d));
+    h += `<div>${linea}</div>`;
+  });
+  for (const d in res) if (res[d] === 0) delete res[d];
+  return [h, res];
+}
+
+function mostrar() {
+  const n = celdas.length;
+  celdas.forEach((ce, k) => {
+    const td = $("#c" + k);
+    const visible = k < paso;
+    td.classList.toggle("oculta", !visible);
+    td.classList.toggle("actual", k === paso - 1 && paso <= n);
+    td.style.background = visible ? COL[ce.d] + "30" : "transparent";
+  });
+  document.querySelectorAll("#tabla th").forEach(th => th.classList.remove("marca"));
+  if (paso === 0) $("#explica").innerHTML = "Cada término de P(x) se multiplica por cada término de Q(x).<br><small style='color:#aaa'>Pulsa «Siguiente» para rellenar la tabla casilla a casilla.</small>";
+  else if (paso <= n) {
+    const ce = celdas[paso - 1];
+    $("#hf" + ce.i).classList.add("marca"); $("#hc" + ce.j).classList.add("marca");
+    $("#explica").innerHTML = explicar(ce);
+  } else $("#explica").innerHTML = "Tabla completa: ahora sumamos los términos del mismo color.";
+  const [h, res] = agrupar();
+  $("#agrupa").innerHTML = paso > n ? h : "";
+  $("#resultado").hidden = paso < total;
+  $("#resultado").innerHTML = `P(x) · Q(x) = ${Object.keys(res).length ? polHTML(res) : "0"}`;
+  $("#bAnt").disabled = paso === 0;
+  $("#bSig").disabled = $("#bTodo").disabled = paso >= total;
+  avisar();
+}
+
+let avisar = () => {};
+const q = new URLSearchParams(location.search);
+if (q.has("p")) $("#ip").value = q.get("p");
+if (q.has("q")) $("#iq").value = q.get("q");
+if (q.has("embed")) {
+  document.documentElement.classList.add("embed");
+  avisar = () => parent.postMessage({ tipo: "altura", h: $("#wrap").getBoundingClientRect().height + 4 }, "*");
+  addEventListener("resize", avisar);
+}
+$("#bSig").onclick = () => { paso = Math.min(total, paso + 1); mostrar(); };
+$("#bAnt").onclick = () => { paso = Math.max(0, paso - 1); mostrar(); };
+$("#bTodo").onclick = () => { paso = total; mostrar(); };
+$("#bReset").onclick = () => { paso = 0; mostrar(); };
+let t;
+$("#ip").oninput = $("#iq").oninput = () => { clearTimeout(t); t = setTimeout(preparar, 350); };
+// polinomio al azar: grado 1 a 3 (más a menudo 1 o 2), coeficientes de −5 a 5, con 2 o 3 términos
+const azar = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+function polAzar() {
+  const g = [1, 1, 1, 2, 2, 3][azar(0, 5)];
+  const otros = [...Array(g).keys()].sort(() => Math.random() - 0.5).slice(0, azar(1, Math.min(2, g)));
+  const p = {};
+  for (const d of [g, ...otros]) { let c = 0; while (!c) c = azar(-5, 5); if (d === g && c < 0 && Math.random() < 0.6) c = -c; p[d] = c; }
+  return grados(p).map((d, i) => {
+    const c = p[d], a = Math.abs(c);
+    const t = d === 0 ? String(a) : (a === 1 ? "" : a) + "x" + (d > 1 ? "^" + d : "");
+    return (c < 0 ? (i ? " - " : "-") : (i ? " + " : "")) + t;
+  }).join("");
+}
+$("#bAzar").onclick = () => { $("#ip").value = polAzar(); $("#iq").value = polAzar(); preparar(); };
+document.querySelectorAll(".ejemplos button[data-p]").forEach(b => b.onclick = () => {
+  $("#ip").value = b.dataset.p; $("#iq").value = b.dataset.q; preparar();
+});
+preparar();
+if (q.get("ver") === "todo" && celdas) { paso = total; mostrar(); }
+</script>
+</body>
+</html>

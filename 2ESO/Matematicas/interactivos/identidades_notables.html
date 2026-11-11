@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identidades notables</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6a65; --line: #dddad2; --accent: #2f5d8a;
+    --fondo: #1e1e2e; --a: #5DADE2; --b: #FF79C6; --ab: #7BD88F; --amarillo: #F7D96F;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; }
+  }
+  :root[data-theme="dark"] { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: clamp(24px, 4vw, 32px); margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px;
+           display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; margin-bottom: 12px; }
+  .modos button { border: 1px solid var(--line); background: none; color: var(--text); font: inherit; padding: 6px 12px;
+                  border-radius: 999px; cursor: pointer; margin: 2px; }
+  .modos button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  label { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  input[type=range] { width: 160px; }
+  .lienzo { background: var(--fondo); border-radius: 14px; padding: 12px; color: #fff; }
+  svg { display: block; width: 100%; max-width: 560px; margin: 0 auto; height: auto; }
+  .formula { font-family: "Cambria Math", "Times New Roman", serif; font-size: clamp(18px, 3.4vw, 26px); text-align: center;
+             margin: 8px 0 4px; }
+  .num { font-family: "Cambria Math", "Times New Roman", serif; font-size: clamp(16px, 3vw, 22px); text-align: center; color: #ddd; }
+  .a { color: var(--a); } .b { color: var(--b); } .ab { color: var(--ab); } .y { color: var(--amarillo); }
+  html.embed body { background: transparent; }
+  .embed h1, .embed .lead { display: none; }
+  .embed .wrap { padding: 0; max-width: none; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <h1>Identidades notables</h1>
+  <p class="lead">Mueve a y b y mira cómo cambian las piezas: el área total siempre cuadra.</p>
+
+  <div class="panel">
+    <div class="modos" id="modos">
+      <button data-m="suma" aria-pressed="true">(a + b)²</button>
+      <button data-m="resta" aria-pressed="false">(a − b)²</button>
+      <button data-m="sd" aria-pressed="false">(a + b)(a − b)</button>
+    </div>
+    <label><span class="a">a =</span> <input type="range" id="ra" min="1" max="10" value="5"> <span id="va" class="a">5</span></label>
+    <label><span class="b">b =</span> <input type="range" id="rb" min="1" max="10" value="2"> <span id="vb" class="b">2</span></label>
+  </div>
+
+  <div class="lienzo">
+    <svg id="svg" viewBox="0 0 440 320"></svg>
+    <div class="formula" id="formula"></div>
+    <div class="num" id="num"></div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const q = new URLSearchParams(location.search);
+let modo = q.get("m") || "suma";
+if (q.has("a")) $("#ra").value = q.get("a");
+if (q.has("b")) $("#rb").value = q.get("b");
+const C = { a: "#5DADE2", b: "#FF79C6", ab: "#7BD88F", y: "#F7D96F" };
+
+function rect(x, y, w, h, col, txt, op = 0.6) {
+  let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${col}" fill-opacity="${op}" stroke="#fff" stroke-width="1.5"/>`;
+  if (txt && w > 22 && h > 18) s += `<text x="${x + w / 2}" y="${y + h / 2}" fill="#fff" font-size="${Math.min(18, w / 2.4, h / 1.4)}" text-anchor="middle" dominant-baseline="central" font-family="Cambria Math, serif">${txt}</text>`;
+  return s;
+}
+function etiqueta(x, y, txt, col, anchor = "middle") {
+  return `<text x="${x}" y="${y}" fill="${col}" font-size="15" text-anchor="${anchor}" dominant-baseline="central" font-family="Cambria Math, serif">${txt}</text>`;
+}
+
+function dibujar() {
+  let a = +$("#ra").value, b = +$("#rb").value;
+  $("#va").textContent = a; $("#vb").textContent = b;
+  document.querySelectorAll("#modos button").forEach(x => x.setAttribute("aria-pressed", x.dataset.m === modo));
+  const W = 440, H = 320, M = 36;
+  let s = "", f = "", n = "";
+  if (modo === "suma") {
+    const k = Math.min((H - 2 * M) / 12, (H - 2 * M) / (a + b));   // crece con a + b hasta llenar el lienzo
+    const A = a * k, B = b * k, x0 = M + 10, y0 = H - M;
+    s += rect(x0, y0 - A, A, A, C.a, "a²") + rect(x0 + A, y0 - A, B, A, C.ab, "ab");
+    s += rect(x0, y0 - A - B, A, B, C.ab, "ab") + rect(x0 + A, y0 - A - B, B, B, C.b, "b²");
+    s += etiqueta(x0 + A / 2, y0 + 14, "a", C.a) + etiqueta(x0 + A + B / 2, y0 + 14, "b", C.b);
+    s += etiqueta(x0 - 12, y0 - A / 2, "a", C.a) + etiqueta(x0 - 12, y0 - A - B / 2, "b", C.b);
+    f = `(<span class="a">a</span> + <span class="b">b</span>)² = <span class="a">a²</span> + <span class="ab">2ab</span> + <span class="b">b²</span>`;
+    n = `(${a} + ${b})² = ${(a + b) ** 2} &nbsp;&nbsp;y&nbsp;&nbsp; <span class="a">${a * a}</span> + <span class="ab">${2 * a * b}</span> + <span class="b">${b * b}</span> = ${a * a + 2 * a * b + b * b}`;
+  } else {
+    if (b >= a) { b = a - 1; $("#rb").value = b; $("#vb").textContent = b; }
+    const k = (H - 2 * M) / 10, A = a * k, B = b * k, x0 = M + 10, y0 = H - M;
+    if (modo === "resta") {
+      s += rect(x0, y0 - A, A, A, C.a, "", 0.35);
+      s += rect(x0, y0 - A, A - B, B, C.ab, "ab", 0.7) + rect(x0 + A - B, y0 - A + B, B, A - B, C.ab, "ab", 0.7);
+      s += rect(x0 + A - B, y0 - A, B, B, C.b, "b²", 0.9);
+      s += `<rect x="${x0}" y="${y0 - A + B}" width="${A - B}" height="${A - B}" fill="none" stroke="${C.y}" stroke-width="3"/>`;
+      s += etiqueta(x0 + (A - B) / 2, y0 - (A - B) / 2, "(a − b)²", C.y);
+      s += etiqueta(x0 + A / 2, y0 + 14, "a", C.a) + etiqueta(x0 - 12, y0 - A / 2, "a", C.a);
+      f = `(<span class="a">a</span> − <span class="b">b</span>)² = <span class="a">a²</span> − <span class="ab">2ab</span> + <span class="b">b²</span>`;
+      n = `(${a} − ${b})² = ${(a - b) ** 2} &nbsp;&nbsp;y&nbsp;&nbsp; <span class="a">${a * a}</span> − <span class="ab">${2 * a * b}</span> + <span class="b">${b * b}</span> = ${a * a - 2 * a * b + b * b}`;
+    } else {
+      // izquierda: cuadrado a con la esquina b quitada; derecha: el rectángulo (a + b)(a − b)
+      s += rect(x0, y0 - (A - B), A, A - B, C.a, "", 0.55) + rect(x0, y0 - A, A - B, B, C.ab, "", 0.6);
+      s += `<rect x="${x0 + A - B}" y="${y0 - A}" width="${B}" height="${B}" fill="none" stroke="${C.b}" stroke-dasharray="4 3"/>`;
+      s += etiqueta(x0 + A - B / 2, y0 - A + B / 2, "−b²", C.b);
+      s += etiqueta(x0 + A / 2, y0 + 14, "a", C.a) + etiqueta(x0 - 12, y0 - A / 2, "a", C.a);
+      const k2 = Math.min(k, (W - x0 - A - 40) / (a + b)), x1 = x0 + A + 28;
+      s += rect(x1, y0 - (a - b) * k2, a * k2, (a - b) * k2, C.a, "", 0.55) + rect(x1 + a * k2, y0 - (a - b) * k2, b * k2, (a - b) * k2, C.ab, "", 0.6);
+      s += etiqueta(x1 + (a + b) * k2 / 2, y0 + 14, "a + b", "#fff") + etiqueta(x1 + (a + b) * k2 + 6, y0 - (a - b) * k2 / 2, "a − b", "#fff", "start");
+      f = `(<span class="a">a</span> + <span class="b">b</span>)(<span class="a">a</span> − <span class="b">b</span>) = <span class="a">a²</span> − <span class="b">b²</span>`;
+      n = `(${a} + ${b})·(${a} − ${b}) = ${a + b}·${a - b} = ${(a + b) * (a - b)} &nbsp;&nbsp;y&nbsp;&nbsp; <span class="a">${a * a}</span> − <span class="b">${b * b}</span> = ${a * a - b * b}`;
+    }
+  }
+  $("#svg").innerHTML = s;
+  $("#formula").innerHTML = f;
+  $("#num").innerHTML = n;
+  avisar();
+}
+
+let avisar = () => {};
+if (q.has("embed")) {
+  document.documentElement.classList.add("embed");
+  avisar = () => parent.postMessage({ tipo: "altura", h: $("#wrap").getBoundingClientRect().height + 4 }, "*");
+  addEventListener("resize", avisar);
+}
+document.querySelectorAll("#modos button").forEach(x => x.onclick = () => { modo = x.dataset.m; dibujar(); });
+$("#ra").oninput = $("#rb").oninput = dibujar;
+dibujar();
+</script>
+</body>
+</html>

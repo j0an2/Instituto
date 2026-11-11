@@ -61,7 +61,9 @@ TITULOS = {
     "EjerciciosResueltos1": "Ejercicios resueltos (1 – 7)",
     "EjerciciosResueltos2": "Ejercicios resueltos (9 – 13)",
 }
-EXTRAS = {"PorQuePeriodico": "E1"}  # vídeos extra: etiqueta propia, no cuentan en la numeración
+EXTRAS = {"PorQuePeriodico": "E2"}  # vídeos extra: etiqueta propia, no cuentan en la numeración
+# páginas interactivas: (etiqueta, título, ruta desde 2ESO/Matematicas, escena tras la que va)
+INTERACTIVOS = [("E1", "Pruébalo tú: M.C.D. y m.c.m.", "../../1ESO/Matematicas/interactivos/factores_mcd_mcm.html?m=mcm&a=4&b=6", "SumaResta")]
 
 ROSA = "#FF79C6"
 SUP = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")

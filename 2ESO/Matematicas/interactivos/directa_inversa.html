@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Directa o inversa</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6a65; --line: #dddad2; --accent: #2f5d8a;
+    --fondo: #1e1e2e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; }
+  }
+  :root[data-theme="dark"] { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: clamp(24px, 4vw, 32px); margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; }
+  .tabla { display: grid; grid-template-columns: 40px repeat(5, minmax(0, 72px)); gap: 6px; align-items: center; }
+  .tabla input { width: 100%; font: 18px "Cambria Math", "Times New Roman", serif; padding: 4px 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); text-align: center; }
+  .tabla input.calc { border-color: #c9a227; background: rgba(247, 217, 111, .18); font-weight: 700; }
+  .tabla .n { font: 600 18px "Cambria Math", serif; text-align: center; }
+  .nx { color: #2b9fd6; } .ny { color: #d9822b; }
+  .ayuda { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+  .botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  button { border: 1px solid var(--line); background: none; color: var(--text); font: inherit; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  button.prim { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .lienzo { background: var(--fondo); border-radius: 14px; padding: 12px; color: #fff; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+  @media (max-width: 720px) { .lienzo { grid-template-columns: 1fr; } }
+  svg { width: 100%; height: auto; display: block; }
+  .tipo { font-size: 22px; font-weight: 700; margin: 4px 0 8px; }
+  .fila { font: 17px "Cambria Math", "Times New Roman", serif; margin: 2px 0; }
+  .tit { font-size: 13px; color: #aaa; margin: 10px 0 2px; }
+  .det { color: #bbb; font-size: 14px; margin-top: 10px; }
+  html.embed body { background: transparent; }
+  .embed h1, .embed .lead { display: none; }
+  .embed .wrap { padding: 0; max-width: none; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <h1>¿Directa, inversa o ninguna?</h1>
+  <p class="lead">Escribe una tabla de dos magnitudes. Si dejas alguna casilla vacía, la completamos.</p>
+  <div class="panel">
+    <div class="tabla" id="tabla"></div>
+    <p class="ayuda">Deja vacía una casilla para que la calcule (solo si la tabla es directa o inversa).</p>
+    <div class="botones">
+      <button id="bAzar" class="prim">🎲 Aleatorio</button>
+      <button data-t="1,2,3,4,5|3,6,9,12,15">Directa</button>
+      <button data-t="1,2,3,4,6|12,6,4,3,2">Inversa</button>
+      <button data-t="1,2,3,4,5|4,5,6,7,8">Ninguna (taxi)</button>
+      <button data-t="2,4,,10,|6,12,18,,45">Con huecos</button>
+    </div>
+  </div>
+  <div class="lienzo">
+    <svg id="svg" viewBox="0 0 400 340"></svg>
+    <div>
+      <div class="tipo" id="tipo"></div>
+      <div class="tit">Cocientes y ÷ x</div>
+      <div id="coc"></div>
+      <div class="tit">Productos x · y</div>
+      <div id="pro"></div>
+      <div class="det" id="det"></div>
+    </div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const CX = "#4FC3F7", CY = "#FF9F43", OK = "#7BD88F", MAL = "#ff6b6b", AC = "#F7D96F", ROSA = "#FF79C6";
+const N = 5;
+const tabla = $("#tabla");
+tabla.innerHTML = '<div class="n nx">x</div>' + [...Array(N)].map((_, i) => `<input id="x${i}" inputmode="decimal">`).join("") +
+                  '<div class="n ny">y</div>' + [...Array(N)].map((_, i) => `<input id="y${i}" inputmode="decimal">`).join("");
+const num = v => { const t = String(v).trim().replace(",", "."); return t === "" ? null : +t; };
+const fmt = v => { const r = Math.round(v * 1000) / 1000; return String(r).replace(".", ","); };
+const igual = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+
+function dibujar() {
+  document.querySelectorAll(".tabla input").forEach(e => { if (e.classList.contains("calc")) { e.value = ""; e.classList.remove("calc"); } });
+  const xs = [...Array(N)].map((_, i) => num($("#x" + i).value));
+  const ys = [...Array(N)].map((_, i) => num($("#y" + i).value));
+  const llenas = [...Array(N).keys()].filter(i => xs[i] !== null && ys[i] !== null && !isNaN(xs[i]) && !isNaN(ys[i]));
+  const q = llenas.filter(i => xs[i] !== 0).map(i => ({ i, v: ys[i] / xs[i] }));
+  const p = llenas.map(i => ({ i, v: xs[i] * ys[i] }));
+  const qIg = q.length >= 2 && q.every(o => igual(o.v, q[0].v));
+  const pIg = p.length >= 2 && p.every(o => igual(o.v, p[0].v));
+  let tipo, col, det = "", k = null, modo = null;
+  if (llenas.length < 2) { tipo = "Escribe al menos dos columnas completas"; col = "#bbb"; }
+  else if (qIg) { tipo = "DIRECTA"; col = OK; k = q[0].v; modo = "d";
+    det = `Todos los cocientes valen ${fmt(k)}: es la constante de proporcionalidad. y = ${fmt(k)} · x. Los puntos están en una recta que pasa por (0, 0).`; }
+  else if (pIg) { tipo = "INVERSA"; col = ROSA; k = p[0].v; modo = "i";
+    det = `Todos los productos valen ${fmt(k)}: x · y = ${fmt(k)}. Si x se multiplica por 2, y se divide entre 2. Los puntos forman una curva.`; }
+  else { tipo = "NINGUNA: no es proporcional"; col = MAL;
+    det = "Ni los cocientes ni los productos son iguales. Puede que los puntos estén en línea, pero no es proporcional."; }
+  $("#tipo").textContent = tipo; $("#tipo").style.color = col;
+  $("#coc").innerHTML = q.map(o => `<div class="fila" style="color:${qIg ? OK : "#bbb"}">${fmt(ys[o.i])} ÷ ${fmt(xs[o.i])} = <b>${fmt(o.v)}</b></div>`).join("") || '<div class="fila" style="color:#777">—</div>';
+  $("#pro").innerHTML = p.map(o => `<div class="fila" style="color:${pIg ? ROSA : "#bbb"}">${fmt(xs[o.i])} · ${fmt(ys[o.i])} = <b>${fmt(o.v)}</b></div>`).join("") || '<div class="fila" style="color:#777">—</div>';
+  // completar huecos
+  const pts = llenas.map(i => [xs[i], ys[i], false]);
+  if (modo) {
+    for (let i = 0; i < N; i++) {
+      const xi = xs[i], yi = ys[i];
+      if (xi !== null && yi === null && !isNaN(xi)) {
+        const v = modo === "d" ? k * xi : (xi !== 0 ? k / xi : null);
+        if (v !== null) { $("#y" + i).value = fmt(v); $("#y" + i).classList.add("calc"); pts.push([xi, v, true]); }
+      } else if (yi !== null && xi === null && !isNaN(yi)) {
+        const v = modo === "d" ? (k !== 0 ? yi / k : null) : (yi !== 0 ? k / yi : null);
+        if (v !== null) { $("#x" + i).value = fmt(v); $("#x" + i).classList.add("calc"); pts.push([v, yi, true]); }
+      }
+    }
+    if (pts.some(t => t[2])) det += " Las casillas amarillas las hemos calculado con esa constante.";
+  }
+  $("#det").textContent = det;
+  grafica(pts, modo, k);
+  avisar();
+}
+
+function grafica(pts, modo, k) {
+  const W = 400, H = 340, M = 34;
+  const pos = pts.filter(t => t[0] >= 0 && t[1] >= 0);
+  const mx = Math.max(1, ...pos.map(t => t[0])) * 1.15, my = Math.max(1, ...pos.map(t => t[1])) * 1.15;
+  const px = x => M + x / mx * (W - 2 * M), py = y => H - M - y / my * (H - 2 * M);
+  let s = `<line x1="${M}" y1="${py(0)}" x2="${W - M + 10}" y2="${py(0)}" stroke="#999" stroke-width="1.5"/>`;
+  s += `<line x1="${px(0)}" y1="${H - M}" x2="${px(0)}" y2="${M - 10}" stroke="#999" stroke-width="1.5"/>`;
+  s += `<text x="${W - M + 6}" y="${py(0) - 8}" fill="${CX}" font-size="15" font-style="italic">x</text>`;
+  s += `<text x="${px(0) + 8}" y="${M - 4}" fill="${CY}" font-size="15" font-style="italic">y</text>`;
+  const pasoX = Math.pow(10, Math.floor(Math.log10(mx))) / (mx / Math.pow(10, Math.floor(Math.log10(mx))) < 3 ? 2 : 1);
+  const pasoY = Math.pow(10, Math.floor(Math.log10(my))) / (my / Math.pow(10, Math.floor(Math.log10(my))) < 3 ? 2 : 1);
+  for (let v = pasoX; v < mx; v += pasoX) s += `<line x1="${px(v)}" y1="${py(0) - 3}" x2="${px(v)}" y2="${py(0) + 3}" stroke="#999"/><text x="${px(v)}" y="${py(0) + 16}" fill="#888" font-size="11" text-anchor="middle">${fmt(v)}</text>`;
+  for (let v = pasoY; v < my; v += pasoY) s += `<line x1="${px(0) - 3}" y1="${py(v)}" x2="${px(0) + 3}" y2="${py(v)}" stroke="#999"/><text x="${px(0) - 6}" y="${py(v) + 4}" fill="#888" font-size="11" text-anchor="end">${fmt(v)}</text>`;
+  if (modo === "d" && k >= 0) {
+    const xe = Math.min(mx, my / Math.max(k, 1e-9));
+    s += `<line x1="${px(0)}" y1="${py(0)}" x2="${px(xe)}" y2="${py(k * xe)}" stroke="${OK}" stroke-width="3" opacity=".8"/>`;
+    s += `<circle cx="${px(0)}" cy="${py(0)}" r="5" fill="${OK}"/>`;
+  } else if (modo === "i" && k > 0) {
+    let d = "";
+    const x0 = Math.max(k / my, mx / 400);
+    for (let j = 0; j <= 120; j++) { const x = x0 + (mx - x0) * j / 120; d += (j ? "L" : "M") + px(x).toFixed(1) + " " + py(k / x).toFixed(1); }
+    s += `<path d="${d}" fill="none" stroke="${ROSA}" stroke-width="3" opacity=".8"/>`;
+  }
+  for (const [x, y, c] of pos) s += `<circle cx="${px(x)}" cy="${py(y)}" r="7" fill="${c ? AC : "#fff"}" stroke="#1e1e2e" stroke-width="2"/>`;
+  $("#svg").innerHTML = s;
+}
+
+function poner(t) {
+  const [a, b] = t.split("|").map(r => r.split(","));
+  for (let i = 0; i < N; i++) { $("#x" + i).value = a[i] ?? ""; $("#y" + i).value = b[i] ?? ""; $("#x" + i).classList.remove("calc"); $("#y" + i).classList.remove("calc"); }
+  dibujar();
+}
+const azar = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+function aleatorio() {
+  const r = Math.random();
+  let xs, ys;
+  if (r < 0.4) { const k = azar(2, 6); const x0 = azar(1, 3); xs = [...Array(N)].map((_, i) => x0 * (i + 1)); ys = xs.map(x => k * x); }
+  else if (r < 0.8) { const ks = [12, 24, 36, 60, 48]; const k = ks[azar(0, ks.length - 1)];
+    const div = [...Array(k).keys()].map(i => i + 1).filter(d => k % d === 0 && d <= 12); xs = div.slice(0, N); ys = xs.map(x => k / x); }
+  else { const a = azar(2, 5), b = azar(1, 6); xs = [1, 2, 3, 4, 5]; ys = xs.map(x => a * x + b); }
+  const hx = azar(0, N - 1); let hy = azar(0, N - 1); if (hy === hx) hy = (hx + 2) % N;
+  const tx = xs.map((v, i) => i === hx && r < 0.8 ? "" : v), ty = ys.map((v, i) => i === hy && r < 0.8 ? "" : v);
+  poner(tx.join(",") + "|" + ty.join(","));
+}
+let avisar = () => {};
+const qs = new URLSearchParams(location.search);
+if (qs.has("embed")) {
+  document.documentElement.classList.add("embed");
+  avisar = () => parent.postMessage({ tipo: "altura", h: $("#wrap").getBoundingClientRect().height + 4 }, "*");
+  addEventListener("resize", avisar);
+}
+document.querySelectorAll(".tabla input").forEach(e => e.oninput = () => { e.classList.remove("calc"); dibujar(); });
+$("#bAzar").onclick = aleatorio;
+document.querySelectorAll("button[data-t]").forEach(b => b.onclick = () => poner(b.dataset.t));
+poner(qs.get("t") || "1,2,3,4,5|3,6,9,12,15");
+</script>
+</body>
+</html>

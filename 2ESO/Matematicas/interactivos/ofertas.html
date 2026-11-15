@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qué oferta compensa</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --surface: #ffffff; --text: #1d1d1b; --muted: #6b6a65; --line: #dddad2; --accent: #2f5d8a;
+    --fondo: #1e1e2e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; }
+  }
+  :root[data-theme="dark"] { --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a09f99; --line: #34332f; --accent: #7fb0e0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: clamp(24px, 4vw, 32px); margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px;
+           display: flex; flex-wrap: wrap; gap: 18px 28px; align-items: center; }
+  label { font-weight: 600; }
+  input[type=number] { width: 90px; font: 18px system-ui; padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+  input[type=range] { width: 220px; vertical-align: middle; }
+  .uds { font: 700 20px system-ui; min-width: 2ch; display: inline-block; text-align: center; }
+  .lienzo { background: var(--fondo); border-radius: 14px; padding: 16px; color: #fff; }
+  .oferta { display: grid; grid-template-columns: 170px minmax(0, 1fr) 170px; gap: 10px; align-items: center; margin: 10px 0; }
+  @media (max-width: 640px) { .oferta { grid-template-columns: 1fr; gap: 4px; } }
+  .nom { font-weight: 700; }
+  .nom small { display: block; font-weight: 400; color: #aaa; font-size: 12px; }
+  .pista { background: #2a2a3c; border-radius: 8px; height: 30px; position: relative; overflow: hidden; }
+  .barra { height: 100%; border-radius: 8px; transition: width .35s; display: flex; align-items: center; padding-left: 8px; font-weight: 700; color: #1e1e2e; white-space: nowrap; }
+  .res { font-size: 15px; }
+  .res b { font-size: 18px; }
+  .gana { outline: 2px solid #7BD88F; outline-offset: 4px; border-radius: 10px; }
+  .veredicto { font-size: 20px; font-weight: 700; color: #7BD88F; margin: 6px 0 14px; }
+  .tit { font-size: 14px; color: #aaa; margin: 18px 0 6px; }
+  .tira { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+  .tira div { border-radius: 6px; padding: 4px 2px; text-align: center; font-size: 12px; color: #1e1e2e; font-weight: 700; cursor: pointer; }
+  .tira div.act { outline: 2px solid #fff; }
+  .det { color: #bbb; font-size: 14px; margin-top: 12px; }
+  html.embed body { background: transparent; }
+  .embed h1, .embed .lead { display: none; }
+  .embed .wrap { padding: 0; max-width: none; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <h1>¿Qué oferta compensa?</h1>
+  <p class="lead">Elige el precio de una unidad y cuántas compras. ¿Qué oferta te hace pagar menos?</p>
+  <div class="panel">
+    <div><label for="precio">Precio de 1 unidad (€)</label><br><input id="precio" type="number" min="0.5" step="0.5" value="12"></div>
+    <div><label for="uds">Unidades que compro: <span class="uds" id="udsTxt">3</span></label><br>
+      <input id="uds" type="range" min="1" max="10" value="3"></div>
+    <div><label for="pct">Descuento fijo (%)</label><br><input id="pct" type="number" min="0" max="90" step="1" value="20"></div>
+    <div><label>Cupón: −<input id="cup" type="number" min="0" step="1" value="15" style="width:64px"> € si gastas
+      <input id="min" type="number" min="0" step="5" value="50" style="width:72px"> € o más</label></div>
+  </div>
+  <div class="lienzo">
+    <div class="veredicto" id="veredicto"></div>
+    <div id="ofertas"></div>
+    <div class="tit">¿Cuál gana según las unidades, con este precio? (pulsa una casilla)</div>
+    <div class="tira" id="tira"></div>
+    <div class="det">El descuento real es lo que te ahorras comparado con pagarlo todo sin oferta. Fíjate:
+      «2.ª unidad al 50 %» no es un 50 %: como mucho es un 25 % (con un número par de unidades). El 3×2 llega al 33,3 %
+      cuando compras un múltiplo de 3. El cupón es una cantidad fija: compensa mucho en compras pequeñas y poco en las
+      grandes. ¡Cambia el precio y mira cómo cambia la tira!</div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const val = id => Math.max(0, +$("#" + id).value || 0);
+const OFERTAS = [
+  { id: "sin", nom: "Sin oferta", sub: () => "pagas todas", col: "#9a9aae", f: (n, p) => n * p },
+  { id: "3x2", nom: () => "3 × 2", sub: () => "de cada 3, pagas 2", col: "#4FC3F7", f: (n, p) => (n - Math.floor(n / 3)) * p },
+  { id: "fijo", nom: () => `−${val("pct")} %`, sub: () => `todo al ${100 - val("pct")} %`, col: "#FF9F43",
+    f: (n, p) => n * p * (1 - val("pct") / 100) },
+  { id: "2a", nom: () => "2.ª unidad al 50 %", sub: () => "cada pareja: 1 + 0,5", col: "#FF79C6",
+    f: (n, p) => (Math.floor(n / 2) * 1.5 + n % 2) * p },
+  { id: "cup", nom: () => `Cupón −${val("cup")} €`, sub: () => `si gastas ${val("min")} € o más`, col: "#7BD88F",
+    f: (n, p) => n * p >= val("min") ? Math.max(0, n * p - val("cup")) : n * p },
+];
+const nom = o => typeof o.nom === "function" ? o.nom() : o.nom;
+const eur = v => (Math.round(v * 100) / 100).toFixed(2).replace(".", ",") + " €";
+const pct = v => (Math.round(v * 10) / 10).toString().replace(".", ",") + " %";
+function mejor(n, p) {
+  const c = OFERTAS.slice(1).map(o => ({ o, v: o.f(n, p) }));
+  const min = Math.min(...c.map(t => t.v));
+  if (Math.abs(min - n * p) < 1e-9) return [];          // ninguna ahorra nada
+  return c.filter(t => Math.abs(t.v - min) < 1e-9).map(t => t.o);
+}
+function dibujar() {
+  const p = val("precio"), n = +$("#uds").value;
+  $("#udsTxt").textContent = n;
+  const total = n * p, gan = mejor(n, p).map(o => o.id);
+  $("#ofertas").innerHTML = OFERTAS.map(o => {
+    const v = o.f(n, p), d = total ? (1 - v / total) * 100 : 0;
+    const w = total ? v / total * 100 : 0;
+    const es = gan.includes(o.id);
+    return `<div class="oferta ${es ? "gana" : ""}"><div class="nom" style="color:${o.col}">${nom(o)}<small>${o.sub()}</small></div>
+      <div class="pista"><div class="barra" style="width:${Math.max(w, 2)}%;background:${o.col}">${eur(v)}</div></div>
+      <div class="res">${o.id === "sin" ? "precio sin descuento" : (total - v < 1e-9 ? "no se aplica" : `ahorras <b>${eur(total - v)}</b><br>descuento real: ${pct(d)}`)}</div></div>`;
+  }).join("");
+  const nombres = mejor(n, p).map(nom);
+  const uds = n === 1 ? "1 unidad" : `${n} unidades`;
+  $("#veredicto").textContent = !nombres.length ? `Con ${uds} ninguna oferta te ahorra nada` :
+    (nombres.length > 1 ? `Con ${uds}, empate: ${nombres.join(" y ")}` : `Con ${uds} gana: ${nombres[0]}`);
+  $("#tira").innerHTML = [...Array(10)].map((_, i) => {
+    const m = mejor(i + 1, p);
+    const fondo = !m.length ? "#555" : (m.length > 1 ? `linear-gradient(90deg, ${m.map(o => o.col).join(", ")})` : m[0].col);
+    return `<div class="${i + 1 === n ? "act" : ""}" style="background:${fondo}" data-n="${i + 1}">${i + 1}</div>`;
+  }).join("");
+  document.querySelectorAll(".tira div").forEach(d => d.onclick = () => { $("#uds").value = d.dataset.n; dibujar(); });
+  avisar();
+}
+let avisar = () => {};
+const qs = new URLSearchParams(location.search);
+if (qs.has("embed")) {
+  document.documentElement.classList.add("embed");
+  avisar = () => parent.postMessage({ tipo: "altura", h: $("#wrap").getBoundingClientRect().height + 4 }, "*");
+  addEventListener("resize", avisar);
+}
+if (qs.has("p")) $("#precio").value = qs.get("p");
+if (qs.has("n")) $("#uds").value = qs.get("n");
+["precio", "pct", "cup", "min"].forEach(id => $("#" + id).oninput = dibujar);
+$("#uds").oninput = dibujar;
+dibujar();
+</script>
+</body>
+</html>

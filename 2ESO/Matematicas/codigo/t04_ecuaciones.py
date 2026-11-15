@@ -12,6 +12,7 @@ Escenas:
     FormulaSegundoGrado    – la fórmula, dos ejemplos y el discriminante (2, 1 o 0 soluciones)
     DemostracionFormula    – (extra E1) completar el cuadrado: x² + 6x = 16 con áreas y la deducción general
     InterpretacionGrafica  – (extra E2) parábolas: cortes con y = 0 = soluciones; 2, 1 o 0 según Δ; c que sube
+    SumaProducto           – (extra E3) si a = 1: x1 + x2 = −b, x1 · x2 = c; tablas de parejas y truco de signos
     Problemas              – pasos; números consecutivos, edades (tabla) y un rectángulo (2.º grado)
     EjerciciosEjemplo      – enunciados de los 10 ejercicios y el apartado a) de cada uno
     EjerciciosResueltos1/2 – el resto de apartados
@@ -42,15 +43,16 @@ TITULOS = {
     "FormulaSegundoGrado": "La fórmula de segundo grado",
     "DemostracionFormula": "¿De dónde sale la fórmula? Completar el cuadrado",
     "InterpretacionGrafica": "Las soluciones en un dibujo: la parábola",
+    "SumaProducto": "El truco de la suma y el producto",
     "Problemas": "Problemas con ecuaciones",
     "EjerciciosEjemplo": "Ejercicios: enunciados y un ejemplo de cada",
     "EjerciciosResueltos1": "Ejercicios resueltos (1 a 4)",
     "EjerciciosResueltos2": "Ejercicios resueltos (5 a 10)",
 }
 
-EXTRAS = {"DemostracionFormula": "E1", "InterpretacionGrafica": "E2"}
-INTERACTIVOS = [("E3", "Pruébalo tú: la fórmula paso a paso", "interactivos/formula_segundo_grado.html",
-                 "InterpretacionGrafica")]
+EXTRAS = {"DemostracionFormula": "E1", "InterpretacionGrafica": "E2", "SumaProducto": "E3"}
+INTERACTIVOS = [("E4", "Pruébalo tú: la fórmula paso a paso", "interactivos/formula_segundo_grado.html",
+                 "SumaProducto")]
 
 MIEMBRO_I, MIEMBRO_D = "#5DADE2", ROSA     # primer y segundo miembro
 A_C, B_C, C_C = "#5DADE2", ROSA, "#7BD88F"  # a, b, c de segundo grado
@@ -923,6 +925,181 @@ class InterpretacionGrafica(Scene):
         self.play(c.animate.set_value(0), run_time=4, rate_func=smooth)
         notas("El discriminante dice cuántas veces corta la parábola al eje x: 2, 1 o 0")
         self.wait(3.5)
+        notas.fin()
+
+
+class SumaProducto(Scene):
+    def construct(self):
+        cab = titulo(self, "El truco de la suma y el producto", "Ecuaciones con a = 1")
+        notas = Notas(self)
+        st = [None]
+
+        def sub(t):
+            if st[0]:
+                self.play(FadeOut(st[0]), run_time=0.4)
+            st[0] = subtitulo(self, cab, t)
+
+        # --- 1. Por qué funciona
+        sub("¿Por qué funciona?")
+        notas("Si las soluciones son 2 y 3, la ecuación se puede escribir así:")
+        e1 = X("(x-2)(x-3)=0", 56).move_to([0, 2.1, 0])
+        self.play(Write(e1))
+        notas("(un producto vale 0 si x = 2 o si x = 3). Multiplicamos:")
+        e2 = X("x^{2}-3x-2x+6=0", 56).move_to([0, 1.0, 0])
+        self.play(Write(e2))
+        e3 = MathTex("x^{2}", "-5", "x", "+6", "=0", font_size=64).move_to([0, -0.2, 0])
+        e3[0][0].set_color(LETRA)
+        e3[2].set_color(LETRA)
+        e3[1].set_color(B_C)
+        e3[3].set_color(C_C)
+        self.play(Write(e3))
+        self.wait(1)
+        s = MathTex("2+3=5", font_size=44, color=B_C).next_to(e3[1], DOWN, buff=1.0).shift(LEFT * 1.2)
+        p = MathTex("2\\cdot 3=6", font_size=44, color=C_C).next_to(e3[3], DOWN, buff=1.0).shift(RIGHT * 0.9)
+        f1 = Arrow(s.get_top(), e3[1].get_bottom(), buff=0.1, color=B_C)
+        f2 = Arrow(p.get_top(), e3[3].get_bottom(), buff=0.1, color=C_C)
+        notas("El número de la x es la SUMA de las soluciones, cambiada de signo", color=B_C)
+        self.play(FadeIn(s), GrowArrow(f1))
+        self.wait(2)
+        notas("Y el número suelto es su PRODUCTO", color=C_C)
+        self.play(FadeIn(p), GrowArrow(f2))
+        self.wait(2.5)
+        notas.fin()
+        limpiar(self, cab)
+        st[0] = None
+
+        # --- 2. La regla
+        sub("La regla")
+        g = MathTex("x^{2}", "+", "b", "x", "+", "c", "=0", font_size=60)
+        g[0][0].set_color(LETRA)
+        g[3].set_color(LETRA)
+        g[2].set_color(B_C)
+        g[5].set_color(C_C)
+        r = VGroup(MathTex("x_{1}+x_{2}=-", "b", font_size=56), MathTex("x_{1}\\cdot x_{2}=", "c", font_size=56))
+        r[0][1].set_color(B_C)
+        r[1][1].set_color(C_C)
+        r.arrange(DOWN, buff=0.45)
+        card = tarjeta(VGroup(g, r).arrange(DOWN, buff=0.6), buff=0.4).move_to([0, 0.3, 0])
+        self.play(Create(card[0]), Write(g))
+        self.play(Write(r[0]))
+        self.play(Write(r[1]))
+        notas("Buscamos dos números que SUMEN −b y MULTIPLICADOS den c. ¡Solo si a = 1!", color=ACENTO)
+        self.wait(3.5)
+        notas.fin()
+        limpiar(self, cab)
+        st[0] = None
+
+        # --- 3. Ejemplos con tabla de parejas
+        def ejemplo(tex, suma, prod, pares, ok, sol, nota_ini, nota_fin, previo=None, nota_previo=None, extra=None):
+            e = X(tex, 56).move_to([-6.2, 2.1, 0], aligned_edge=LEFT)
+            if previo:
+                e0 = X(previo, 56).move_to(e, aligned_edge=LEFT)
+                self.play(Write(e0))
+                notas(nota_previo, color=ROSA)
+                self.wait(2)
+                div = MathTex("\\downarrow\\ :2", font_size=40, color=ROSA).next_to(e0, DOWN, buff=0.2).align_to(e0, LEFT).shift(RIGHT * 0.5)
+                e.next_to(div, DOWN, buff=0.2).align_to(e0, LEFT)
+                self.play(FadeIn(div))
+                self.play(TransformFromCopy(e0, e), run_time=1.5)
+                notas("Ahora a = 1 y ya podemos usar el truco")
+                self.wait(2)
+                self.play(FadeOut(VGroup(e0, div)), e.animate.move_to([-6.2, 2.1, 0], aligned_edge=LEFT))
+            else:
+                self.play(Write(e))
+            sp = VGroup(MathTex(f"\\text{{suman}}\\ {suma}", font_size=42, color=B_C),
+                        MathTex(f"\\text{{multiplicados}}\\ {prod}", font_size=42, color=C_C)).arrange(RIGHT, buff=0.8)
+            sp.next_to(e, RIGHT, buff=0.9)
+            self.play(FadeIn(sp, shift=LEFT * 0.2))
+            notas(nota_ini)
+            self.wait(1.5)
+            filas = VGroup()
+            for k, (u, v) in enumerate(pares):
+                y = 1.0 - k * 0.72
+                m1 = MathTex(f"{u}\\cdot " + (f"({v})" if v < 0 else f"{v}") + f"={prod}", font_size=40, color=C_C)
+                m1.move_to([-5.9, y, 0], aligned_edge=LEFT)
+                sm = u + v
+                m2 = MathTex(f"{u}+{v}={sm}".replace("+-", "-"), font_size=40, color=B_C).move_to([-2.6, y, 0], aligned_edge=LEFT)
+                marca = MathTex("\\checkmark" if k == ok else "\\times", font_size=44,
+                                color=OK if k == ok else MAL).next_to(m2, RIGHT, buff=0.35)
+                self.play(FadeIn(m1), FadeIn(m2), run_time=0.6)
+                self.play(FadeIn(marca, scale=1.4), run_time=0.4)
+                filas.add(VGroup(m1, m2, marca))
+            self.play(Circumscribe(filas[ok], color=OK))
+            res = X(sol, 56).move_to([3.6, -0.2, 0])
+            caja = SurroundingRectangle(res, color=ACENTO, buff=0.25, corner_radius=0.1)
+            self.play(Write(res), Create(caja))
+            notas(nota_fin, color=OK)
+            self.wait(3)
+            otros = VGroup()
+            if extra:
+                comp, form, rform, nota_form = extra
+                self.play(FadeOut(filas), FadeOut(sp))
+                notas("Comprobamos: sustituimos cada solución en la ecuación")
+                g = VGroup()
+                for k, tx in enumerate(comp):
+                    m = MathTex(tx, "\\ \\checkmark", font_size=40).move_to([-6.2, 1.0 - k * 0.85, 0], aligned_edge=LEFT)
+                    m[1].set_color(OK)
+                    self.play(Write(m[0]), run_time=1.2)
+                    self.play(FadeIn(m[1], scale=1.4), run_time=0.4)
+                    g.add(m)
+                self.wait(1.5)
+                notas(nota_form)
+                f1 = MathTex(form, font_size=42).move_to([-6.2, -1.05, 0], aligned_edge=LEFT)
+                self.play(Write(f1), run_time=1.5)
+                f2 = X(rform, 44).next_to(f1, DOWN, buff=0.35).align_to(f1, LEFT)
+                self.play(Write(f2))
+                self.play(Indicate(f2, color=OK, scale_factor=1.15), Indicate(res, color=OK, scale_factor=1.15))
+                notas("¡Lo mismo! El truco es un atajo: la fórmula siempre da las mismas soluciones", color=OK)
+                self.wait(3)
+                otros.add(g, f1, f2)
+            notas.fin()
+            self.play(FadeOut(VGroup(e, sp, filas, res, caja, otros)))
+
+        sub("Ejemplo")
+        ejemplo("x^{2}-7x+12=0", 7, 12, [(1, 12), (2, 6), (3, 4)], 2, "x_{1}=4,\\quad x_{2}=3",
+                "−b = 7 y c = 12. Probamos parejas que multiplicadas den 12...",
+                "3 + 4 = 7 y 3 · 4 = 12: las soluciones son 3 y 4",
+                extra=(["3^{2}-7\\cdot 3+12=9-21+12=0", "4^{2}-7\\cdot 4+12=16-28+12=0"],
+                       "x=\\frac{7\\pm\\sqrt{49-48}}{2}=\\frac{7\\pm 1}{2}", "x_{1}=4,\\quad x_{2}=3",
+                       "Y con la fórmula (a = 1, b = −7, c = 12):"))
+
+        sub("Producto negativo")
+        ejemplo("x^{2}+2x-15=0", -2, -15, [(1, -15), (-1, 15), (3, -5)], 2, "x_{1}=3,\\quad x_{2}=-5",
+                "Producto negativo: un número positivo y otro negativo",
+                "3 + (−5) = −2 y 3 · (−5) = −15: las soluciones son 3 y −5")
+
+        sub("Si a no es 1")
+        ejemplo("x^{2}+6x+8=0", -6, 8, [(-1, -8), (-2, -4)], 1, "x_{1}=-2,\\quad x_{2}=-4",
+                "Producto positivo y suma negativa: los dos números son negativos",
+                "(−2) + (−4) = −6 y (−2) · (−4) = 8: las soluciones son −2 y −4",
+                previo="2x^{2}+12x+16=0", nota_previo="Aquí a = 2: el truco no vale tal cual. Primero dividimos TODO entre 2")
+
+        # --- Truco de signos
+        sub("Truco de los signos")
+        t = VGroup(texto("Producto positivo → los dos con el mismo signo (el de la suma)", 30),
+                   texto("Producto negativo → uno positivo y otro negativo", 30)).arrange(DOWN, aligned_edge=LEFT, buff=0.5)
+        card = tarjeta(t).move_to([0, 0.4, 0])
+        self.play(Create(card[0]))
+        for m in t:
+            self.play(FadeIn(m, shift=RIGHT * 0.2))
+            self.wait(1)
+        self.wait(2.5)
+        limpiar(self, cab)
+        st[0] = None
+
+        # --- 4. Cuándo no sirve
+        sub("¿Cuándo no sirve?")
+        l1 = VGroup(X("2x^{2}-3x-5=0", 46), texto("a ≠ 1 y al dividir entre 2 salen fracciones:", 28),
+                    texto("suma 3/2 y producto −5/2 (soluciones 5/2 y −1)", 28))
+        l1.arrange(DOWN, aligned_edge=LEFT, buff=0.2).move_to([-6.2, 1.6, 0], aligned_edge=LEFT)
+        l2 = VGroup(X("x^{2}+2x-4=0", 46), texto("Las soluciones no son enteras (−1 ± √5):", 28),
+                    texto("no las encontrarás probando", 28))
+        l2.arrange(DOWN, aligned_edge=LEFT, buff=0.2).move_to([-6.2, -0.9, 0], aligned_edge=LEFT)
+        self.play(FadeIn(l1, shift=RIGHT * 0.2))
+        self.wait(2.5)
+        self.play(FadeIn(l2, shift=RIGHT * 0.2))
+        notas("En esos casos, la fórmula. El truco es un atajo para las fáciles, no un sustituto", color=ACENTO)
+        self.wait(4)
         notas.fin()
 
 

@@ -42,13 +42,17 @@ def colocar(fichas, rejilla):
 class Divisores(Scene):
     def construct(self):
         cab = titulo(self, "Divisibilidad", "Múltiplos y divisores")
+        xola = Xola(self)
+        xola.entra("saluda", "¡Hola! Soy Xola.\n¡Vamos a jugar con fichas!", 2)
 
         pregunta = texto("¿De cuántas formas podemos colocar\n12 fichas formando un rectángulo?", 30)
         pregunta.next_to(cab, DOWN, buff=0.4).to_edge(LEFT)
         self.play(Write(pregunta))
+        xola.cambia("pensando", "Mmm... ¿cuántas\nformas habrá?")
 
         fichas = VGroup(*[Dot(radius=0.15, color=ACENTO) for _ in range(12)])
         fichas.arrange(RIGHT, buff=BUFF).shift(UP * 0.5)
+        xola.calla()
         self.play(LaggedStart(*[GrowFromCenter(f) for f in fichas], lag_ratio=0.08))
 
         formas = [(1, 12), (2, 6), (3, 4)]
@@ -59,11 +63,14 @@ class Divisores(Scene):
             et = MathTex(rf"{filas} \times {cols} = 12", font_size=44)
             et.next_to(fichas, DOWN, buff=0.5)
             self.play(Write(et))
+            if filas == 2:
+                xola.cambia("sorpresa", "¡Otra forma más!", 0.8)
             self.wait(0.6)
             etiquetas.add(et.copy())
             self.play(FadeOut(et))
 
         # Resumen de los productos
+        xola.calla()
         etiquetas.arrange(RIGHT, buff=0.8).to_edge(DOWN, buff=1.6)
         self.play(LaggedStart(*[FadeIn(e, shift=UP * 0.2) for e in etiquetas], lag_ratio=0.3))
         self.wait(0.5)
@@ -71,7 +78,8 @@ class Divisores(Scene):
         divs = MathTex(r"\text{Divisores de } 12:\; 1,\ 2,\ 3,\ 4,\ 6,\ 12",
                        font_size=46, color=ACENTO).to_edge(DOWN, buff=0.6)
         self.play(Write(divs))
-        self.wait(1)
+        xola.cambia("idea", "¡Cada forma nos da\ndos divisores!", 2)
+        xola.calla()
 
         # Definición
         self.play(*[FadeOut(m) for m in [fichas, etiquetas, pregunta]], divs.animate.to_edge(UP, buff=1.2))
@@ -84,18 +92,21 @@ class Divisores(Scene):
         for m in defi:
             self.play(FadeIn(m, shift=UP * 0.2))
             self.wait(0.4)
-        self.wait(2)
+        xola.cambia("ok", "Divisor y múltiplo:\n¡van de la mano!", 2.5)
 
 
 class PrimosCompuestos(Scene):
     def construct(self):
         cab = titulo(self, "Números primos")
 
+        xola = Xola(self)
         pregunta = texto("¿Y con 7 fichas?", 36).next_to(cab, DOWN, buff=0.4).to_edge(LEFT)
         self.play(Write(pregunta))
+        xola.entra("pensando", "Con 12 salían\nvarios rectángulos...", 1.5)
 
         fichas = VGroup(*[Dot(radius=0.15, color=ACENTO) for _ in range(7)])
         fichas.arrange(RIGHT, buff=BUFF).shift(UP * 0.3)
+        xola.calla()
         self.play(LaggedStart(*[GrowFromCenter(f) for f in fichas], lag_ratio=0.1))
 
         for filas in (2, 3):
@@ -104,16 +115,22 @@ class PrimosCompuestos(Scene):
             self.play(colocar(fichas, rej), run_time=1.2)
             vacios = VGroup(*[DashedVMobject(Circle(radius=0.15, color=MAL)).move_to(rej[i])
                               for i in range(7, filas * cols)])
-            msg = texto(f"{filas} filas: ¡no sale! Sobra hueco.", 32, MAL).next_to(rej, DOWN, buff=0.6)
+            msg = texto(f"{filas} filas: ¡no sale! Sobra hueco.", 32, MAL).next_to(rej, DOWN, buff=0.6).shift(LEFT * 0.9)
             self.play(Create(vacios), Write(msg))
-            self.wait(0.8)
+            if filas == 2:
+                xola.cambia("duda", "¡Vaya! No cuadra...", 0.8)
+            else:
+                xola.cambia("triste", "Tampoco...", 0.8)
+            self.wait(0.4)
+            xola.calla()
             self.play(FadeOut(vacios), FadeOut(msg))
 
         rej = huecos(7, 1, 7, UP * 0.3)
         self.play(colocar(fichas, rej))
         solo = MathTex(r"7 = 1 \times 7", font_size=50).next_to(fichas, DOWN, buff=0.6)
         self.play(Write(solo))
-        self.wait(0.8)
+        xola.cambia("sorpresa", "¡Solo se puede\nen una fila!", 1.8)
+        xola.sale()
 
         self.play(*[FadeOut(m) for m in [fichas, solo, pregunta]])
 
@@ -127,19 +144,22 @@ class PrimosCompuestos(Scene):
             texto("Tiene más de 2 divisores", 30),
             MathTex(r"4,\ 6,\ 8,\ 9,\ 10,\ 12,\ \dots", font_size=44, color=BLUE),
         ).arrange(DOWN, buff=0.3)
-        VGroup(primo, compuesto).arrange(DOWN, buff=0.8).shift(DOWN * 0.3)
+        VGroup(primo, compuesto).arrange(DOWN, buff=0.8).shift(DOWN * 0.3 + LEFT * 1.3)
         self.play(FadeIn(primo, shift=UP * 0.3))
         self.wait(1)
         self.play(FadeIn(compuesto, shift=UP * 0.3))
         self.wait(1)
         nota = texto("Ojo: el 1 no es ni primo ni compuesto.", 28, GREY_B).to_edge(DOWN, buff=0.4)
         self.play(Write(nota))
-        self.wait(2)
+        xola.entra("idea", "¡El 1 es especial:\nsolo tiene un divisor!", 2.5)
 
 
 class Criterios(Scene):
     def construct(self):
         cab = titulo(self, "Criterios de divisibilidad")
+        xola = Xola(self)
+        xola.entra("idea", "¡Trucos para saber si\nes divisible sin dividir!", 2)
+        xola.calla()
 
         filas = [
             ("2", "Acaba en cifra par (0, 2, 4, 6, 8)", "348", BLUE),
@@ -166,16 +186,18 @@ class Criterios(Scene):
         self.play(tabla.animate.scale(0.6).to_corner(UR).shift(DOWN * 0.6))
         ej = MathTex("4", "7", "1", font_size=90).shift(LEFT * 2.5 + DOWN * 0.3)
         self.play(Write(ej))
+        xola.cambia("pensando", "¿Será 471\ndivisible por 3?", 1.5)
+        xola.calla()
         suma = MathTex("4", "+", "7", "+", "1", "=", "12", font_size=70).next_to(ej, DOWN, buff=0.8)
         self.play(*[TransformFromCopy(ej[i], suma[2 * i]) for i in range(3)], FadeIn(suma[1]), FadeIn(suma[3]))
         self.play(Write(suma[5:]))
         check = MathTex(r"12 = 3 \times 4 \;\Rightarrow\; 471 \text{ es divisible por } 3",
-                        font_size=42, color=OK).to_edge(DOWN, buff=0.8)
+                        font_size=42, color=OK).to_edge(DOWN, buff=0.8).to_edge(LEFT, buff=0.6)
         self.play(Write(check))
         self.wait(1)
         comprob = MathTex(r"471 : 3 = 157", font_size=48, color=ACENTO).next_to(ej, RIGHT, buff=1.2)
         self.play(FadeIn(comprob, shift=LEFT * 0.3))
-        self.wait(2)
+        xola.cambia("celebra", "¡Funciona!\nResto 0.", 2.5)
 
 
 class CribaEratostenes(Scene):
@@ -196,6 +218,9 @@ class CribaEratostenes(Scene):
             c[1].move_to(c[0])
         grid.to_edge(LEFT, buff=0.6).shift(DOWN * 0.3)
         self.play(LaggedStart(*[FadeIn(c) for c in grid], lag_ratio=0.01), run_time=2)
+        xola = Xola(self)
+        xola.entra("saluda", "¡Vamos a cazar\nlos primos!", 1.8)
+        xola.calla()
 
         def explicar(cadena, color=TEXTO):
             t = texto(cadena, 28, color)
@@ -238,4 +263,4 @@ class CribaEratostenes(Scene):
         total = texto(f"¡Hay {len(primos)} primos\nmenores que 100!", 32, ACENTO)
         total.next_to(info, DOWN, buff=0.6).align_to(info, LEFT)
         self.play(Write(total))
-        self.wait(3)
+        xola.cambia("celebra", "¡Lo conseguimos!", 3)

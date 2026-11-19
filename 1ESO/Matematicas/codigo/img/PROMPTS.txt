@@ -1,0 +1,181 @@
+PROMPTS DE COMFYUI · Z-Image Turbo
+==================================
+
+Registro de todas las imágenes generadas para los vídeos, en orden.
+Para repetir una imagen exacta: mismo prompt + misma semilla + mismo tamaño.
+
+Generación (desde 1ESO/Matematicas/codigo, con ComfyUI abierto en http://127.0.0.1:8000):
+    ~\venvs\manim\Scripts\python.exe -I generar_imagen.py "PROMPT" img/<tema>/<nombre>.png SEMILLA ANCHO ALTO
+
+Ajustes fijos del flujo (generar_imagen.py):
+    Modelo ........ z_image_turbo_bf16.safetensors (sin LoRAs)
+    Text encoder .. qwen_3_4b.safetensors (CLIPLoader, tipo lumina2)
+    VAE ........... ae.safetensors
+    Muestreo ...... ModelSamplingAuraFlow shift 3 · KSampler 8 pasos, cfg 1.0, res_multistep, simple
+    Negativo ...... ConditioningZeroOut del positivo
+    Fondo ......... BiRefNet (LoadBackgroundRemovalModel + RemoveBackground) -> <nombre>.png con transparencia
+Salidas por imagen:
+    <nombre>_raw.png   imagen original, fondo blanco
+    <nombre>.png       recortada y sin fondo (BiRefNet)
+    <nombre>_card.png  original con esquinas redondeadas (tarjeta) -> la que se usa en los vídeos
+
+Nota: quitar el fondo falla con dibujos que tienen mucho blanco (agujeros en el edificio) y borra
+detalles sueltos (sol, copos de nieve, mostrador). Por eso en los vídeos se usan las tarjetas (_card).
+
+
+BLOQUES REUTILIZABLES
+---------------------
+[ESTILO]  (se añade al final de todos los prompts)
+Flat vector illustration for a school math video, simple geometric shapes, soft pastel colors, thick clean
+outlines, friendly cartoon style, isolated on a plain white background, no text, no letters, no numbers.
+
+[CHICO]  (personaje recurrente)
+a cheerful 12-year-old boy with short dark hair
+
+
+IMÁGENES
+--------
+
+01 · img/t05/pizzas.png · semilla 11 · 1216 x 832 · Tema 5, ejercicio 6a (prueba)
+   Flat vector illustration for a school math video. Two cheerful 12-year-old kids, a girl with a ponytail and
+   a boy with short hair, sitting side by side at a small table, each with their own round pepperoni pizza cut
+   into slices, smiling and eating a slice. Simple geometric shapes, soft pastel colors, thick clean outlines,
+   friendly cartoon style, full bodies visible, isolated on a plain white background, no text, no letters.
+
+02 · img/t03/verano.png · semilla 21 · 896 x 1088 · Tema 3, ¿Para qué sirven los negativos? (+25 °C)
+   [CHICO] wearing a green t-shirt, shorts and sunglasses, holding an ice cream under a bright sun, summer heat.
+   [ESTILO]
+
+03 · img/t03/invierno.png · semilla 22 · 896 x 1088 · Tema 3, ¿Para qué sirven los negativos? (−3 °C)
+   [CHICO] wearing a thick winter coat, green scarf and wool hat, shivering in the snow with snowflakes falling
+   around him, cold winter day. [ESTILO]
+
+04 · img/t03/edificio.png · semilla 23 · 896 x 1152 · Tema 3, ¿Para qué sirven los negativos? (ascensor)
+   Cross-section of a small apartment building: three upper floors with windows, a ground floor with an
+   entrance door, and two underground parking levels below the ground line with cars, an elevator shaft in the
+   middle going from the top floor down to the lowest basement. [ESTILO]
+
+05 · img/t03/tienda.png · semilla 24 · 1152 x 896 · Tema 3, ¿Para qué sirven los negativos? (dinero)
+   [CHICO] wearing a green t-shirt at a shop counter, looking worried at his open empty wallet, a shopkeeper
+   behind the counter with a toy box, a few coins. [ESTILO]
+
+
+MASCOTA (ajolote) · candidatas
+------------------------------
+[MASCOTA]  (se añade al final de los prompts de la mascota)
+Mascot character design for a school math video series for 12-year-olds, full body, front view, big friendly
+expressive eyes, kawaii style but not babyish, simple geometric shapes, soft pastel colors, thick clean outlines,
+flat vector illustration, isolated on a plain white background, no text, no letters, no numbers.
+
+06 · assets/mascota/pruebas/ajolote1_rosa.png · semilla 41 · 1024 x 1024
+   A cute pink axolotl girl standing on two little legs, with fluffy magenta feathery gills on her head, rosy
+   cheeks and a big smile, waving hello with one hand. [MASCOTA]
+
+07 · assets/mascota/pruebas/ajolote2_gafas.png · semilla 42 · 1024 x 1024   (salió parecida a un gato: sin branquias)
+   A cute lilac purple axolotl girl with round glasses and a small yellow pencil behind her gill, holding a
+   notebook, standing and smiling confidently. [MASCOTA]
+
+08 · assets/mascota/pruebas/ajolote3_mochila.png · semilla 43 · 1024 x 1024
+   A cute pink axolotl girl wearing a small mint green backpack and sneakers, cheerful explorer pose with one
+   arm raised, fluffy coral feathery gills. [MASCOTA]
+
+09 · assets/mascota/pruebas/ajolote4_burbujas.png · semilla 44 · 1024 x 1024
+   A cute light pink axolotl girl happily blowing a big shiny soap bubble from her mouth, smaller bubbles
+   floating around, fluffy pink feathery gills glowing softly. [MASCOTA]
+
+
+MASCOTA · posturas de la opción 3 (ajolote con mochila)
+-------------------------------------------------------
+Se usa la misma descripción [XOLA] y la misma semilla (43) que la base; solo cambia la postura.
+
+[XOLA]
+A cute pink axolotl girl with fluffy coral feathery gills on her head, cream belly, rosy cheeks, big shiny
+black eyes, a pink tail, wearing a small mint green backpack and blue and white sneakers
+
+[MASCOTA2]  (sustituye a [MASCOTA] en las posturas)
+Mascot character design for a school math video series for 12-year-olds, full body, front view, kawaii style
+but not babyish, simple geometric shapes, soft pastel colors, thick clean outlines, flat vector illustration,
+isolated on a plain white background, no text, no letters, no numbers.
+
+10 · assets/mascota/pruebas/xola_sorpresa.png · semilla 43 · 1024 x 1024 · «¡Cuidado!»
+   [XOLA], looking very surprised with wide open eyes and open mouth, both hands raised to her cheeks, a small
+   exclamation sweat drop. [MASCOTA2]
+
+11 · assets/mascota/pruebas/xola_pensando.png · semilla 43 · 1024 x 1024 · «¡Pausa el vídeo e inténtalo!»
+   [XOLA], thinking with one hand on her chin, eyes looking up, curious expression, a small question mark
+   bubble above her head. [MASCOTA2]
+
+12 · assets/mascota/pruebas/xola_burbuja.png · semilla 43 · 1024 x 1024 · celebración (su «fuego de dragón»)
+   [XOLA], happily blowing a big shiny soap bubble from her mouth, small bubbles floating around her. [MASCOTA2]
+
+13 · assets/mascota/pruebas/xola_idea.png · semilla 43 · 1024 x 1024 · tiene una idea (branquias iluminadas)
+   [XOLA], having a bright idea, her feathery gills glowing with warm yellow light, one finger pointing up,
+   excited smile. [MASCOTA2]
+
+14 · assets/mascota/pruebas/xola_celebra.png · semilla 43 · 1024 x 1024 · «¡Muy bien!»
+   [XOLA], celebrating with both arms raised in the air and jumping with joy, eyes closed happily, big smile,
+   small sparkles around her. [MASCOTA2]
+
+
+MASCOTA · 10 variantes por postura (60 imágenes)
+------------------------------------------------
+Script: img/generar_variantes_xola.py (prompts exactos dentro del script; [XOLA] + postura + [MASCOTA2]).
+Salida: assets/mascota/variantes/<postura>_s<semilla>.png
+La postura «sorpresa» se reforzó: "shocked and surprised, eyes wide open, mouth open in a round O shape,
+eyebrows raised, both hands on her cheeks, no smile, a small exclamation sweat drop".
+
+Semillas y elegidas (copiadas a assets/mascota/elegidas/<postura>.png y <postura>_alt.png):
+    saluda    100-109   elegida s102 · alternativa s108
+    sorpresa  200-209   elegida s203 · alternativa s205
+    pensando  300-309   elegida s303 · alternativa s300
+    burbuja   400-409   elegida s406 · alternativa s402
+    idea      500-509   elegida s503 · alternativa s505
+    celebra   600-609   elegida s603 · alternativa s606
+
+Descartadas por defectos al quitar el fondo (agujeros negros en barriga o zapatillas):
+    sorpresa s208, s209 · burbuja s401, s403, s405 · idea s500, s506
+
+
+MASCOTA · expresiones con Qwen-Image-Edit-2511 (07/11/2026)
+
+Base: assets/mascota/qwen/base_saluda_blanco.png (= elegidas/saluda.png sobre fondo blanco 1024 x 1024).
+Comando: python editar_imagen.py BASE "INSTRUCCIÓN [KEEP]" assets/mascota/qwen/<nombre>_s<semilla>.png <semilla>
+Semillas 11 y 12 para cada una (las dos salieron bien en todas).
+
+[KEEP]
+   Keep exactly the same character design, gills, colors, backpack and sneakers, same flat cartoon style
+   with thick black outlines. Plain white background.
+
+sorpresa  Make the axolotl look very surprised: eyes wide open, mouth open in an O shape, both hands on its cheeks.
+pensando  Make the axolotl thinking: one hand on its chin, eyes looking up, a small question mark above its head.
+idea      Make the axolotl have a bright idea: pointing one finger up, excited big smile, a small yellow light bulb above its head.
+celebra   Make the axolotl celebrate: both arms raised high, jumping with joy, eyes closed happily, small sparkles around.
+triste    Make the axolotl look a bit sad and worried: eyebrows tilted, small frown, shoulders down, one small tear.
+senala    Make the axolotl point with one arm to the right side of the image, like presenting something, friendly smile.
+ok        Make the axolotl give a thumbs up with one hand and wink with one eye, confident smile.
+duda      Make the axolotl look confused: scratching its head with one hand, one eyebrow raised, tilted head.
+
+==========================================================================================
+MASCOTA · cursos y asignaturas con Qwen-Image-Edit-2511 (08/11/2026)
+==========================================================================================
+Todo en assets/mascota/ (junto a las imágenes de la web). Semillas 11-14.
+KEEP: "Keep exactly the same character design, gills, colors and sneakers, same flat cartoon style
+with thick black outlines, full body visible. Plain white background."
+
+Asignaturas (base: qwen/base_saluda_blanco.png) → asignaturas/ (elegidas) y asignaturas/candidatas/
+  mates.png      = mates_brazo_s11 · "holds a drawing compass up in one hand and carries a blue set square
+                   tucked under its other arm, pressed against its side. Happy, confident smile. Keep the backpack."
+  fisica.png     = fisica_digital_s11 · cadena: fisica_s12 (ruler + stopwatch + Erlenmeyer flask) →
+                   fisica_bata_s11 ("white laboratory coat, open at the front") → "Replace the analog stopwatch
+                   with a modern digital stopwatch ... LCD screen showing 00:00". Recorte por floodfill (bata blanca).
+  biologia.png   = bio_ambas_s11 (marieta + brote, sobre biologia_tierra_s11) · cadena: biologia_s12 (magnifying glass + rock with quartz) →
+                   "Make the rock dirtier: brown soil and mud ... small dirt smudges on hand and cheek".
+  geografia.png  = geografia_s11 · "young explorer adventurer: beige safari hat, khaki explorer vest with pockets,
+                   holds an open old treasure-style paper map with both hands. Excited, adventurous smile."
+  Problemas vistos: dedos atravesando el agujero del cartabón; cinta métrica → sale regla; cronómetro analógico
+  parece reloj; BiRefNet agujerea la bata blanca.
+
+Cursos (cadena: cada curso parte del anterior, s11_raw) → cursos/ · sin elegir todavía
+  2eso hoodie teal + mochila a un hombro · 3eso auriculares + calculadora · 4eso chaqueta naranja + carpeta + gafas
+  1bach mochila portátil + tablet · 2bach birrete + café. Problema: desde 3eso le salen orejas → añadir
+  "no ears, only the gills on the sides of the head".

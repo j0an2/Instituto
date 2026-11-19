@@ -6,6 +6,7 @@ Escenas:
     FraccionDeUnaCantidad         – 3/4 de 20 caramelos; 2/5 de 30 €
     MultiplicarFracciones         – el rectángulo: 2/3 · 4/5 = 8/15
     DividirFracciones             – ¿cuántos octavos caben en 3/4?; la inversa
+    OperacionesCombinadas         – (extra E1) el orden de las operaciones con fracciones
     EjerciciosEjemplo             – enunciados (2 páginas) + primer apartado de cada ejercicio resuelto
     EjerciciosResueltos           – el resto de apartados
 
@@ -28,9 +29,11 @@ TITULOS = {
     "FraccionDeUnaCantidad": "Fracción de una cantidad",
     "MultiplicarFracciones": "Multiplicar fracciones",
     "DividirFracciones": "Dividir fracciones",
+    "OperacionesCombinadas": "Operaciones combinadas con fracciones",
     "EjerciciosEjemplo": "Ejercicios: enunciados y ejemplos resueltos",
     "EjerciciosResueltos": "Ejercicios resueltos",
 }
+EXTRAS = {"OperacionesCombinadas": "E1"}
 
 ROSA = "#FF79C6"
 AZUL = "#5DADE2"
@@ -417,6 +420,100 @@ class DividirFracciones(Scene):
         self.play(Write(l2), run_time=2)
         n2 = texto("y simplificamos al final", 22, GREY_B).next_to(l2, DOWN, buff=0.2)
         self.play(FadeIn(n2), Circumscribe(l2[-1], color=ACENTO))
+        self.wait(3)
+
+
+# ---------------------------------------------------------------------------
+def orden_ops(size=22):
+    """Recuadro pequeño con el orden de las operaciones (como en el tema 10)."""
+    filas = VGroup(*[texto(t, size, c) for t, c in (("1.º Paréntesis", "#FF79C6"), ("2.º Potencias", "#5DADE2"),
+                                                       ("3.º · y :  (izq. → dcha.)", "#FF9F43"),
+                                                       ("4.º + y −  (izq. → dcha.)", "#7BD88F"))])
+    filas.arrange(DOWN, aligned_edge=LEFT, buff=0.12)
+    caja = SurroundingRectangle(filas, color=GREY_B, buff=0.2, corner_radius=0.1, stroke_width=2)
+    return VGroup(caja, filas)
+
+
+def paso_comb(scene, fila_ant, idx, lado, nueva, nota, x=-6.4, y=None):
+    """Marca con caja amarilla los trozos idx de fila_ant, hace la cuenta 'lado' a la derecha y escribe 'nueva' debajo."""
+    caja = SurroundingRectangle(VGroup(*[fila_ant[i] for i in idx]), color=ACENTO, buff=0.1, stroke_width=3)
+    n = texto(nota, 26, ACENTO).to_edge(DOWN, buff=0.35)
+    scene.play(Create(caja), FadeIn(n))
+    lado.next_to(fila_ant, RIGHT, buff=0.9)
+    if lado.get_right()[0] > 6.9:
+        lado.scale_to_fit_width(6.9 - lado.get_left()[0])
+    lado.set_color(ACENTO)
+    flecha = Arrow(fila_ant.get_right(), lado.get_left(), buff=0.1, color=ACENTO, stroke_width=3,
+                   max_tip_length_to_length_ratio=0.25)
+    scene.play(GrowArrow(flecha), Write(lado), run_time=1.3)
+    scene.wait(1.2)
+    nueva.next_to(fila_ant, DOWN, buff=0.45).align_to([x, 0, 0], LEFT)
+    scene.play(Write(nueva), FadeOut(n), run_time=1.2)
+    scene.wait(0.8)
+    return caja, flecha
+
+
+class OperacionesCombinadas(Scene):
+    def construct(self):
+        cab = titulo(self, "Operaciones combinadas", "con fracciones")
+        orden = orden_ops().to_corner(UR, buff=0.3)
+        intro = texto("El orden es el mismo que con los números enteros", 28, ACENTO).move_to([0, 0.3, 0])
+        self.play(FadeIn(intro))
+        self.play(FadeIn(orden, shift=LEFT * 0.3))
+        self.wait(2)
+        self.play(FadeOut(intro))
+
+        # Ejemplo 1: sin paréntesis
+        f1 = cadena((1, 2), "+", (3, 4), r"\cdot", (2, 3), size=52).move_to([0, 1.3, 0]).align_to([-6.4, 0, 0], LEFT)
+        self.play(Write(f1))
+        lado = cadena((3, 4), r"\cdot", (2, 3), "=", (6, 12), "=", (1, 2), size=40, buff=0.2)
+        f2 = cadena("=", (1, 2), "+", (1, 2), size=52)
+        paso_comb(self, f1, [2, 3, 4], lado, f2, "1.º la multiplicación (va antes que la suma)")
+        f3 = cadena("=", (2, 2), "=", "1", size=52)
+        caja = SurroundingRectangle(f2[1:], color=ACENTO, buff=0.1, stroke_width=3)
+        n = texto("2.º la suma: mismo denominador", 26, ACENTO).to_edge(DOWN, buff=0.35)
+        self.play(Create(caja), FadeIn(n))
+        f3.next_to(f2, DOWN, buff=0.45).align_to([-6.4, 0, 0], LEFT)
+        self.play(Write(f3), FadeOut(n))
+        self.play(Circumscribe(f3[-1], color=ACENTO))
+        self.wait(2)
+
+        # El error típico
+        mal = VGroup(texto("Si sumamos primero:", 24, MAL),
+                     cadena((5, 4), r"\cdot", (2, 3), "=", (10, 12), "=", (5, 6), size=36, buff=0.2))
+        mal.arrange(RIGHT, buff=0.3).to_edge(DOWN, buff=0.5)
+        self.play(FadeIn(mal))
+        cruz = Cross(mal[1][-1], stroke_color=MAL, stroke_width=6)
+        self.play(Create(cruz))
+        self.play(FadeIn(texto("¡Otro resultado! Por eso hay que respetar el orden", 24, MAL).next_to(mal, UP, buff=0.2)))
+        self.wait(2.5)
+        self.play(*[FadeOut(m) for m in self.mobjects if m not in (cab, orden)])
+
+        # Ejemplo 2: con paréntesis
+        f1 = cadena("(", (2, 3), "-", (1, 4), ")", r"\cdot", (6, 5), size=52).move_to([0, 1.3, 0]).align_to([-6.4, 0, 0], LEFT)
+        self.play(Write(f1))
+        lado = cadena((8, 12), "-", (3, 12), "=", (5, 12), size=40, buff=0.2)
+        f2 = cadena("=", (5, 12), r"\cdot", (6, 5), size=52)
+        paso_comb(self, f1, [0, 1, 2, 3, 4], lado, f2, "1.º el paréntesis: m.c.m.(3, 4) = 12")
+        lado2 = cadena((5, 12), r"\cdot", (6, 5), "=", (30, 60), "=", (1, 2), size=40, buff=0.2)
+        f3 = cadena("=", (1, 2), size=52)
+        paso_comb(self, f2, [1, 2, 3], lado2, f3, "2.º la multiplicación y simplificamos")
+        self.play(Circumscribe(f3[-1], color=ACENTO))
+        self.wait(2)
+        self.play(*[FadeOut(m) for m in self.mobjects if m not in (cab, orden)])
+
+        # Ejemplo 3: entero, división y resta
+        f1 = cadena("2", "-", (1, 3), ":", (2, 9), "+", (1, 2), size=52).move_to([0, 1.3, 0]).align_to([-6.4, 0, 0], LEFT)
+        self.play(Write(f1))
+        lado = cadena((1, 3), r"\cdot", (9, 2), "=", (9, 6), "=", (3, 2), size=40, buff=0.2)
+        f2 = cadena("=", "2", "-", (3, 2), "+", (1, 2), size=52)
+        paso_comb(self, f1, [2, 3, 4], lado, f2, "1.º la división: multiplicamos por la inversa")
+        lado2 = cadena((4, 2), "-", (3, 2), "+", (1, 2), "=", (2, 2), size=40, buff=0.2)
+        f3 = cadena("=", (2, 2), "=", "1", size=52)
+        paso_comb(self, f2, [1, 2, 3, 4, 5], lado2, f3, "2.º sumas y restas de izquierda a derecha (2 = 4/2)")
+        self.play(Circumscribe(f3[-1], color=ACENTO))
+        resumen = texto("Primero se decide QUÉ toca y después se opera como siempre", 26, ACENTO).to_edge(DOWN, buff=0.4)
+        self.play(FadeIn(resumen))
         self.wait(3)
 
 

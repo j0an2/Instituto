@@ -2,6 +2,7 @@
 
 Escenas:
     QueEsUnaFraccion        – partes iguales de un todo: barra, pizza, recta
+    FraccionesImpropias     – (extra E1) propias e impropias, números mixtos y en la recta
     FraccionesEquivalentes  – 1/2 = 2/4 = 4/8 (misma parte pintada) y productos cruzados
     AmplificarSimplificar   – multiplicar/dividir arriba y abajo; irreducible con el M.C.D.
     CompararFracciones      – mismo denominador, mismo numerador, común denominador (m.c.m.)
@@ -21,6 +22,7 @@ from estilo import *  # noqa: E402,F403
 TEMA = "Tema 5 · Fracciones equivalentes, comparar y ordenar"
 TITULOS = {
     "QueEsUnaFraccion": "¿Qué es una fracción?",
+    "FraccionesImpropias": "Fracciones propias, impropias y números mixtos",
     "FraccionesEquivalentes": "Fracciones equivalentes",
     "AmplificarSimplificar": "Amplificar y simplificar",
     "CompararFracciones": "Comparar fracciones",
@@ -28,6 +30,7 @@ TITULOS = {
     "EjerciciosEjemplo": "Ejercicios: enunciados y ejemplos resueltos",
     "EjerciciosResueltos": "Ejercicios resueltos",
 }
+EXTRAS = {"FraccionesImpropias": "E1"}
 
 
 def limpiar(scene, cab):
@@ -131,6 +134,159 @@ class QueEsUnaFraccion(Scene):
         et = fraccion(3, 4, size=48).next_to(punto, UP, buff=0.3)
         self.play(Write(et), Flash(punto, color=ACENTO))
         self.wait(2.5)
+
+
+# ---------------------------------------------------------------------------
+def mixto(e, n, d, size=48, color=ACENTO):
+    """Número mixto: entero grande + fracción."""
+    return VGroup(MathTex(str(e), font_size=size * 1.4, color=color), fraccion(n, d, size)).arrange(RIGHT, buff=0.1)
+
+
+def division_caja(dividendo, divisor, size=48):
+    """División a la española: VGroup(dividendo, divisor, cociente, resto, rayas)."""
+    q, r = divmod(dividendo, divisor)
+    dv = MathTex(str(dividendo), font_size=size)
+    ds = MathTex(str(divisor), font_size=size, color=DENOMINADOR).next_to(dv, RIGHT, buff=0.45)
+    v = Line(ds.get_corner(UL) + LEFT * 0.18 + UP * 0.08, ds.get_corner(DL) + LEFT * 0.18 + DOWN * 0.1, stroke_width=3)
+    h = Line(v.get_end(), v.get_end() + RIGHT * (ds.width + 0.45), stroke_width=3)
+    co = MathTex(str(q), font_size=size, color=ACENTO).next_to(h, DOWN, buff=0.15).align_to(ds, LEFT)
+    re = MathTex(str(r), font_size=size, color=NUMERADOR).next_to(dv, DOWN, buff=0.35).align_to(dv, RIGHT)
+    return VGroup(dv, ds, co, re, VGroup(v, h))
+
+
+class FraccionesImpropias(Scene):
+    def construct(self):
+        cab = titulo(self, "Fracciones propias e impropias", "y números mixtos")
+        w = 3.6  # ancho de una unidad
+
+        # 1. Propia, igual a 1, impropia
+        b1 = barra(4, 0, ancho=w, alto=0.7).move_to([-3.6, 2.0, 0])
+        f1 = fraccion(3, 4, 44).next_to(b1, LEFT, buff=0.4)
+        self.play(FadeIn(b1), Write(f1))
+        self.play(LaggedStart(*[b1[i].animate.set_fill(ACENTO) for i in range(3)], lag_ratio=0.3))
+        t1 = texto("PROPIA: numerador < denominador\nno llega a la unidad", 24, OK).next_to(b1, RIGHT, buff=0.5)
+        self.play(FadeIn(t1))
+        self.wait(1.5)
+
+        b2 = barra(4, 0, ancho=w, alto=0.7).move_to([-3.6, 0.6, 0])
+        f2 = fraccion(4, 4, 44).next_to(b2, LEFT, buff=0.4)
+        self.play(FadeIn(b2), Write(f2))
+        self.play(LaggedStart(*[b2[i].animate.set_fill(ACENTO) for i in range(4)], lag_ratio=0.3))
+        t2 = texto("4/4 = 1: la unidad entera", 24, GREY_B).next_to(b2, RIGHT, buff=0.5)
+        self.play(FadeIn(t2))
+        self.wait(1.2)
+
+        b3a = barra(4, 0, ancho=w, alto=0.7).move_to([-3.6, -0.9, 0])
+        b3b = barra(4, 0, ancho=w, alto=0.7).next_to(b3a, RIGHT, buff=0.35)
+        f3 = fraccion(7, 4, 44).next_to(b3a, LEFT, buff=0.4)
+        self.play(FadeIn(b3a), Write(f3))
+        q = texto("¿7 cuartos? ¡Con una unidad no hay bastante!", 24, ACENTO).move_to([0, -2.0, 0])
+        piezas = list(b3a) + list(b3b[:3])
+        nums = VGroup()
+        for k, pz in enumerate(piezas):
+            if k == 4:
+                self.play(FadeIn(b3b), FadeIn(q))
+            n = MathTex(str(k + 1), font_size=28, color=BLACK).move_to(pz)
+            self.play(pz.animate.set_fill(ACENTO), FadeIn(n), run_time=0.3)
+            nums.add(n)
+        t3 = texto("IMPROPIA: numerador > denominador → es mayor que 1", 26, POSITIVO).move_to([0, -2.0, 0])
+        self.play(FadeOut(q), FadeIn(t3))
+        self.wait(2.5)
+        limpiar(self, cab)
+
+        # 2. Número mixto con las barras
+        sub = subtitulo(self, cab, "Número mixto: unidades enteras + una fracción")
+        b3a = barra(4, 4, ancho=w, alto=0.7).move_to([-2.0, 1.3, 0])
+        b3b = barra(4, 3, ancho=w, alto=0.7).next_to(b3a, RIGHT, buff=0.35)
+        f3 = fraccion(7, 4, 52).next_to(b3a, LEFT, buff=0.5)
+        self.play(FadeIn(b3a), FadeIn(b3b), FadeIn(f3))
+        ll1 = Brace(b3a, DOWN, buff=0.1)
+        ll2 = Brace(b3b[:3], DOWN, buff=0.1)
+        e1 = texto("1 unidad", 24, ACENTO).next_to(ll1, DOWN, buff=0.1)
+        e2 = fraccion(3, 4, 32).next_to(ll2, DOWN, buff=0.1)
+        self.play(GrowFromCenter(ll1), FadeIn(e1))
+        self.play(GrowFromCenter(ll2), FadeIn(e2))
+        ec = VGroup(fraccion(7, 4, 56), MathTex("=", font_size=56), MathTex("1", font_size=56, color=ACENTO),
+                    MathTex("+", font_size=56), fraccion(3, 4, 56), MathTex("=", font_size=56),
+                    mixto(1, 3, 4, 56)).arrange(RIGHT, buff=0.3).move_to([0, -1.2, 0])
+        self.play(Write(ec[:5]))
+        self.play(Write(ec[5:]))
+        lee = texto("Se lee: «uno y tres cuartos»", 26, ACENTO).next_to(ec, DOWN, buff=0.4)
+        self.play(FadeIn(lee), Circumscribe(ec[6], color=ACENTO))
+        self.wait(2.5)
+        limpiar(self, cab)
+
+        # 3. Impropia -> mixto dividiendo
+        subtitulo(self, cab, "De impropia a mixto: dividimos")
+        for (n, d), x in (((7, 4), -3.3), ((11, 3), 3.3)):
+            f = fraccion(n, d, 60).move_to([x - 2.2, 1.0, 0])
+            self.play(Write(f))
+            dc = division_caja(n, d, 52).move_to([x, 1.0, 0])
+            self.play(TransformFromCopy(f[0], dc[0]), TransformFromCopy(f[2], dc[1]), Create(dc[4]))
+            self.play(Write(dc[2]), Write(dc[3]))
+            q_, r_ = divmod(n, d)
+            m = mixto(q_, r_, d, 60).move_to([x, -1.4, 0])
+            self.play(TransformFromCopy(dc[2], m[0]), TransformFromCopy(dc[3], m[1][0]),
+                      TransformFromCopy(dc[1], m[1][2]), FadeIn(m[1][1]))
+            self.wait(0.8)
+        regla = texto("cociente → unidades enteras   ·   resto → numerador   ·   el denominador no cambia",
+                      22, GREY_B).to_edge(DOWN, buff=0.4)
+        self.play(FadeIn(regla))
+        self.wait(3)
+        limpiar(self, cab)
+
+        # 4. Mixto -> impropia
+        subtitulo(self, cab, "De mixto a impropia")
+        m = mixto(2, 2, 3, 60).move_to([-5.2, 1.4, 0])
+        self.play(Write(m))
+        ws = 2.6
+        bs = VGroup(barra(3, 3, ancho=ws, alto=0.65), barra(3, 3, ancho=ws, alto=0.65),
+                    barra(3, 2, ancho=ws, alto=0.65)).arrange(RIGHT, buff=0.3).move_to([1.2, 1.4, 0])
+        self.play(FadeIn(bs))
+        cont = VGroup()
+        k = 0
+        for bb in bs:
+            for pz in bb:
+                if pz.get_fill_color().to_hex().upper() != VACIO.upper():
+                    k += 1
+                    n_ = MathTex(str(k), font_size=26, color=BLACK).move_to(pz)
+                    cont.add(n_)
+                    self.play(FadeIn(n_), run_time=0.22)
+        t = texto("8 tercios", 26, ACENTO).next_to(bs, DOWN, buff=0.3)
+        self.play(FadeIn(t))
+        cal = VGroup(mixto(2, 2, 3, 56), MathTex("=", font_size=56),
+                     fraccion(r"2 \cdot 3 + 2", "3", 56), MathTex("=", font_size=56),
+                     fraccion(8, 3, 56)).arrange(RIGHT, buff=0.3).move_to([0, -0.9, 0])
+        self.play(Write(cal[:3]))
+        self.play(Write(cal[3:]))
+        regla = texto("unidades × denominador + numerador  ·  el denominador no cambia", 24, GREY_B)
+        regla.next_to(cal, DOWN, buff=0.5)
+        self.play(FadeIn(regla))
+        self.wait(3)
+        limpiar(self, cab)
+
+        # 5. En la recta
+        subtitulo(self, cab, "En la recta: las impropias están después del 1")
+        recta = NumberLine(x_range=[0, 3, 1], length=11, include_tip=False, stroke_width=3,
+                           tick_size=0.14).move_to([0, -0.4, 0])
+        nums = VGroup(*[MathTex(str(k), font_size=40).next_to(recta.n2p(k), DOWN, buff=0.25) for k in range(4)])
+        self.play(Create(recta), FadeIn(nums))
+        zona = Line(recta.n2p(0), recta.n2p(1), stroke_width=10, color=OK).set_opacity(0.6)
+        zt = texto("propias", 24, OK).next_to(zona, DOWN, buff=0.75)
+        self.play(Create(zona), FadeIn(zt))
+        for (n, d, col, mx) in ((3, 4, OK, None), (7, 4, POSITIVO, (1, 3, 4)), (8, 3, POSITIVO, (2, 2, 3))):
+            pnt = Dot(recta.n2p(n / d), radius=0.12, color=col)
+            et = fraccion(n, d, 36).next_to(pnt, UP, buff=0.3)
+            g = VGroup(et)
+            if mx:
+                igual = MathTex("=", font_size=36).next_to(et, RIGHT, buff=0.15)
+                mm = mixto(*mx, 36).next_to(igual, RIGHT, buff=0.15)
+                g.add(igual, mm)
+                g.next_to(pnt, UP, buff=0.3)
+            self.play(FadeIn(pnt, scale=2), FadeIn(g))
+        fin = texto("7/4 = 1 y 3/4: está entre el 1 y el 2", 26, ACENTO).to_edge(DOWN, buff=0.6)
+        self.play(FadeIn(fin))
+        self.wait(3)
 
 
 # ---------------------------------------------------------------------------

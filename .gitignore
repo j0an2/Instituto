@@ -10,11 +10,12 @@ LEEME_PARA_IA.txt
 pruebas/
 
 # Mascota: solo se publican las imágenes finales y sus prompts
-1ESO/mascota/*
-!1ESO/mascota/PROMPTS.txt
-!1ESO/mascota/xola/
-!1ESO/mascota/asignaturas/
-1ESO/mascota/asignaturas/candidatas/
+assets/mascota/*
+!assets/mascota/*.webp
+!assets/mascota/PROMPTS.txt
+!assets/mascota/xola/
+!assets/mascota/asignaturas/
+assets/mascota/asignaturas/candidatas/
 
 # Documento de trabajo interno (no se publica)
 MATES_1ESO.md
@@ -23,3 +24,4 @@ MATES_2ESO.md
 
 # Fotos de índices de libros (solo para planificar)
 2ESO/**/*.jpeg
+1ESO/**/*.jpeg

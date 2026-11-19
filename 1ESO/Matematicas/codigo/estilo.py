@@ -264,10 +264,10 @@ def pieza(p, r=0.32):
 
 # ---------------------------------------------------------------------------
 # Xola, la mascota: aparece en una esquina, cambia de expresión y habla con bocadillo.
-# Expresiones (1ESO/mascota/xola/*.png): saluda, celebra, duda, idea, ok, pensando,
+# Expresiones (assets/mascota/xola/*.png): saluda, celebra, duda, idea, ok, pensando,
 # senala, sorpresa, triste.
 # ---------------------------------------------------------------------------
-DIR_XOLA = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "mascota", "xola"))
+DIR_XOLA = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "assets", "mascota", "xola"))
 
 
 class Xola:

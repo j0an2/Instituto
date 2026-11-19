@@ -10,6 +10,7 @@ al final de cada tema.
 
 | Tema | Vídeos |
 |---|---|
+| 0 · Números naturales y potencias | Sistemas de numeración, el número natural, propiedades de las operaciones, potencias, cuadrados perfectos y raíz, redondear y estimar, ejercicios |
 | 1 · Divisibilidad | Múltiplos y divisores, primos y compuestos, criterios de divisibilidad, criba de Eratóstenes |
 | 2 · Factores primos, M.C.D. y m.c.m. | Árbol de factores, divisiones sucesivas, múltiplos y divisores comunes, M.C.D. y m.c.m., problemas, ejercicios y una actividad interactiva para practicar con tus propios números |
 | 3 · Números enteros | Para qué sirven, la recta, opuesto y valor absoluto, comparar y ordenar, ejercicios |
@@ -28,7 +29,12 @@ Próximamente: álgebra, geometría, funciones y estadística.
 | Tema | Vídeos |
 |---|---|
 | 1 · Números enteros | Naturales y divisibilidad (repaso), positivos y negativos, suma y resta, multiplicación y división, potencias y raíces cuadradas, operaciones con potencias, operaciones combinadas, ejercicios |
-| 2 · Fracciones y números decimales | Fracciones (repaso), suma y resta, multiplicación y división, potencias, operaciones combinadas, fracciones y decimales, ¿por qué sale exacto o periódico? (extra), de decimal periódico a fracción, operaciones combinadas con decimales, raíces cuadradas con decimales, notación científica, ejercicios |
+| 2 · Fracciones y números decimales | Fracciones (repaso), suma y resta, multiplicación y división, potencias, operaciones combinadas, fracciones y decimales, ¿por qué sale exacto o periódico? (extra), de decimal periódico a fracción, operaciones combinadas con decimales, raíces cuadradas con decimales, notación científica, ejercicios y una actividad interactiva (M.C.D. y m.c.m.) |
+| 3 · Lenguaje algebraico | Expresiones algebraicas, monomios, polinomios, suma y resta, multiplicación, identidades notables con áreas, ejercicios y actividades interactivas (multiplicar polinomios, identidades notables) |
+| 4 · Ecuaciones | Qué es una ecuación, ecuaciones equivalentes con la balanza, primer grado con paréntesis y con denominadores, segundo grado incompletas y la fórmula, problemas, ejercicios, extras (de dónde sale la fórmula, interpretación gráfica, suma y producto) y una actividad interactiva (resolver con la fórmula) |
+| 5 · Sistemas de ecuaciones | Qué es un sistema, método gráfico, sustitución, reducción, igualación, tipos de sistemas, problemas, ejercicios, extras (los tres métodos, número de soluciones) y una actividad interactiva (dos rectas) |
+| 6 · Proporcionalidad numérica | Razón y proporción, proporcionalidad directa e inversa, regla de tres, proporcionalidad compuesta, porcentajes, aumentos y disminuciones, ejercicios, extra (interés simple) y actividades interactivas (¿directa o inversa?, ofertas) |
+| 7 · Funciones y gráficas | Coordenadas, concepto de función, gráficas, dominio y recorrido, continuidad y crecimiento, interpretar gráficas, ejercicios |
 
 Próximamente: más temas de 2.º ESO.
 
@@ -38,9 +44,9 @@ La carpeta sigue la misma estructura que la web: **curso → asignatura → víd
 
 ```
 index.html                    ← la web
-assets/                       ← recursos de la web (mascotas, fórmulas del fondo)
+assets/                       ← recursos de la web (fórmulas del fondo)
+└── mascota/                  ← Xola, la mascota de 1.º: imágenes de la web, poses de los vídeos, asignaturas y PROMPTS.txt
 1ESO/
-├── mascota/                  ← Xola, la mascota del curso (poses, asignaturas y PROMPTS.txt)
 └── Matematicas/
     ├── videos/<tema>/        ← vídeos finales (1080p)
     ├── interactivos/         ← actividades interactivas (HTML) que aparecen en la lista de vídeos

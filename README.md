@@ -16,8 +16,11 @@ al final de cada tema.
 | 4 · Jerarquía de las operaciones | Por qué hace falta un orden, mismo nivel de izquierda a derecha, paréntesis y corchetes, resolver paso a paso, potencias de números negativos, errores típicos, ejercicios |
 | 5 · Fracciones | Qué es una fracción, propias, impropias y números mixtos, equivalentes, amplificar y simplificar, comparar, ordenar, sumar y restar, fracción de una cantidad, multiplicar, dividir, operaciones combinadas, ejercicios |
 | 6 · Números decimales | Décimas y centésimas, valor de cada cifra, decimales en la recta, comparar, ordenar, sumar y restar, por 10, 100 y 1000, multiplicar, dividir, de fracción a decimal y redondeo, decimales periódicos, ejercicios |
+| 7 · Proporcionalidad | Razón, proporción, magnitudes directamente e inversamente proporcionales, regla de tres directa e inversa, porcentajes, aumentos y descuentos, ejercicios, extra (escalas) y una actividad interactiva (¿directa o inversa?) |
+| 8 · Lenguaje algebraico | Expresiones algebraicas, monomios, polinomios, suma y resta de polinomios, qué es una ecuación, ecuaciones equivalentes con la balanza, ecuaciones de primer grado, ejercicios |
+| 9 · Magnitudes y medida | Magnitudes, el Sistema Métrico Decimal (la escalera), longitud, masa y capacidad, superficie, volumen (¿dónde cabe 1 litro?), el tiempo (sistema sexagesimal), euros y céntimos, forma compleja e incompleja, operaciones, ejercicios |
 
-Próximamente: proporcionalidad, álgebra, medida, geometría, funciones y estadística.
+Próximamente: geometría, perímetros y áreas, funciones y estadística.
 
 ## Temas de 2.º ESO · Matemáticas
 

@@ -31,7 +31,7 @@ sys.path.insert(0, AQUI)
 COMUN = os.path.normpath(os.path.join(AQUI, "..", "..", "..", "1ESO", "Matematicas", "codigo"))
 sys.path.insert(0, COMUN)
 from estilo import *  # noqa: E402,F403
-from t09_potencias_raices import Notas, limpiar, subtitulo  # noqa: E402
+from potencias_raices import Notas, limpiar, subtitulo  # noqa: E402
 from t03_lenguaje_algebraico import X, cuenta, lista, pagina_enunciados, tarjeta, ROSA, LETRA  # noqa: E402
 
 # Metadatos para la web (los lee publicar.py)

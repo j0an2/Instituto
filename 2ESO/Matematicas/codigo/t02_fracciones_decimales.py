@@ -38,9 +38,9 @@ COMUN = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, COMUN)
 from estilo import *  # noqa: E402,F403
 from t05_fracciones import flecha_op, resolver_simplifica  # noqa: E402
-from t08_operaciones_decimales import division_larga, periodico, COLOR_PERIODO, COLOR_ANTE  # noqa: E402
-from t09_potencias_raices import Notas, limpiar, subtitulo  # noqa: E402
-from t10_jerarquia import NIVELES, tachar, escalera, Nodo as Nd  # noqa: E402
+from t06_decimales import division_larga, periodico, COLOR_PERIODO, COLOR_ANTE  # noqa: E402
+from potencias_raices import Notas, limpiar, subtitulo  # noqa: E402
+from t04_jerarquia import NIVELES, tachar, escalera, Nodo as Nd  # noqa: E402
 
 # Metadatos para la web (los lee publicar.py)
 TEMA = "Tema 2 · Fracciones y números decimales"

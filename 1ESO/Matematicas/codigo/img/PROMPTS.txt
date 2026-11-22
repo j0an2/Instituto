@@ -179,3 +179,16 @@ Cursos (cadena: cada curso parte del anterior, s11_raw) → cursos/ · sin elegi
   2eso hoodie teal + mochila a un hombro · 3eso auriculares + calculadora · 4eso chaqueta naranja + carpeta + gafas
   1bach mochila portátil + tablet · 2bach birrete + café. Problema: desde 3eso le salen orejas → añadir
   "no ears, only the gills on the sides of the head".
+
+
+TEMA 9 · MAGNITUDES Y MEDIDA (22/11/2026) · img/t09/ · se usan las _card.png (esquinas redondeadas con PIL)
+------------------------------------------------------------------------------------------------------------
+15 · palmos  · 81 · 1152 x 896 · [CHICO] wearing a green t-shirt, measuring the length of a wooden school desk with his
+     open hand spans, one hand after the other on the desk top. [ESTILO]   (salió con cinta métrica; se usa como «longitud»)
+16 · balanza · 82 · 1152 x 896 · A white kitchen scale with a bag of flour on its plate, and a few red apples next to it on the table. [ESTILO]
+17 · camion  · 83 · 1152 x 896 · A big red delivery truck loaded with heavy wooden crates, side view. [ESTILO]
+18 · botella · 84 · 1152 x 896 · A clear plastic one liter water bottle full of water, next to a glass of water and a big water jug. [ESTILO]
+19 · campo   · 85 · 1216 x 832 · Top view of a green soccer field with white lines, two goals and a few small players. [ESTILO]
+20 · piscina · 86 · 1216 x 832 · A rectangular outdoor swimming pool full of bright blue water, seen from slightly above, with a ladder and a few sun loungers. [ESTILO]
+21 · pecera  · 87 · 1152 x 896 · A rectangular glass fish tank aquarium full of water with a few orange fish and green plants. [ESTILO]
+22 · crono   · 88 · 1216 x 832 · [CHICO] wearing a green t-shirt, running on a school track while a smiling coach holds a digital stopwatch, a round wall clock in the background. [ESTILO]

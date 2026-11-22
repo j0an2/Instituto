@@ -28,7 +28,7 @@ COMUN = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__))
                                       "..", "..", "..", "1ESO", "Matematicas", "codigo"))
 sys.path.insert(0, COMUN)
 from estilo import *  # noqa: E402,F403
-from t09_potencias_raices import Notas, limpiar, subtitulo  # noqa: E402
+from potencias_raices import Notas, limpiar, subtitulo  # noqa: E402
 
 # Metadatos para la web (los lee publicar.py)
 TEMA = "Tema 3 · Lenguaje algebraico"
@@ -243,6 +243,9 @@ class ExpresionesAlgebraicas(Scene):
         notas("Un lado mide x y el otro 3 cm más: x + 3")
         p = VGroup(X("P = x + (x+3) + x + (x+3)", 44), X("P = 2x + 2(x+3)", 44)).arrange(DOWN, aligned_edge=LEFT, buff=0.5)
         p.move_to([2.9, 1.0, 0])
+        notas("El perímetro (P) es la suma de los cuatro lados")
+        defp = texto("P = perímetro = suma de los 4 lados", 28, ACENTO).next_to(p, UP, buff=0.45)
+        self.play(FadeIn(defp), Indicate(r, color=ACENTO, scale_factor=1.05))
         self.play(Write(p[0]))
         self.wait(1)
         self.play(Write(p[1]))
@@ -287,6 +290,9 @@ class ExpresionesAlgebraicas(Scene):
 
 
 class Monomios(Scene):
+    def antes_de_multiplicar(self, cab, notas):
+        """Gancho: 1.º ESO lo sobrescribe para justificar por qué se suman/restan los exponentes."""
+
     def construct(self):
         cab = titulo(self, "Monomios")
         notas = Notas(self)
@@ -394,6 +400,7 @@ class Monomios(Scene):
         limpiar(self, cab)
 
         # --- Producto y cociente
+        self.antes_de_multiplicar(cab, notas)
         subtitulo(self, cab, "Multiplicar y dividir monomios")
         notas("Multiplicamos coeficientes por coeficientes y letras por letras (se suman los exponentes)")
         pr = VGroup(
@@ -479,23 +486,40 @@ class Polinomios(Scene):
         subtitulo(self, cab, "Valor numérico")
         e = VGroup(MathTex("P(x) =", font_size=52), pol(P, 52)).arrange(RIGHT, buff=0.2).move_to([0, 2.1, 0])
         self.play(Write(e))
+        notas("El valor numérico es lo que vale el polinomio cuando la x toma un número concreto")
+        sig = texto("P(2) = cuánto vale P(x) cuando x = 2", 30, ACENTO).move_to([0, 1.35, 0])
+        self.play(FadeIn(sig))
+        self.wait(1.5)
         notas("P(2): cambiamos cada x por 2 y operamos")
         lineas(self, ["P(2) = 3\\cdot 2^{4} - 2\\cdot 2^{2} + 2 - 7",
                       "= 3\\cdot 16 - 2\\cdot 4 + 2 - 7",
-                      "= 48 - 8 + 2 - 7 = 35"], -4.6, 0.9, dy=0.85, size=44)
+                      "= 48 - 8 + 2 - 7 = 35"], -4.6, 0.55, dy=0.85, size=44)
         notas("P(−1): el −1 entre paréntesis")
-        lineas(self, ["P(-1) = 3\\cdot(-1)^{4} - 2\\cdot(-1)^{2} + (-1) - 7 = -7"], -4.6, -1.8, size=44)
+        lineas(self, ["P(-1) = 3\\cdot(-1)^{4} - 2\\cdot(-1)^{2} + (-1) - 7 = -7"], -4.6, -2.05, size=44)
         self.wait(2)
         notas.fin()
         limpiar(self, cab)
 
         subtitulo(self, cab, "Raíces")
-        r = VGroup(MathTex("R(x) = x^{2} - 4", font_size=56),
-                   MathTex("R(2) = 2^{2} - 4 = 0", font_size=56)).arrange(DOWN, buff=0.6).move_to([0, 0.8, 0])
+        p0 = MathTex("P(x) = x^{2} - 4", font_size=56).move_to([0, 2.0, 0])
+        self.play(Write(p0))
+        defr = texto("Las raíces de un polinomio son los números\nque hacen que su valor numérico sea 0",
+                     30, ACENTO).move_to([0, 0.85, 0])
+        notas("Una raíz es un valor de x que hace P(x) = 0")
+        self.play(FadeIn(defr))
+        self.wait(2)
+        r = VGroup(MathTex("P(2) = 2^{2} - 4 = 4 - 4 = 0", font_size=52),
+                   MathTex("P(-2) = (-2)^{2} - 4 = 4 - 4 = 0", font_size=52)
+                   ).arrange(DOWN, buff=0.5, aligned_edge=LEFT).move_to([0, -1.1, 0])
+        notas("Probamos con x = 2")
         self.play(Write(r[0]))
+        self.play(Circumscribe(r[0][0][-1], color=OK))
+        notas("El valor numérico es 0: 2 es raíz de P(x)", color=OK)
+        self.wait(1.5)
+        notas("Probamos con x = −2 (entre paréntesis)")
         self.play(Write(r[1]))
-        notas("Si el valor numérico es 0, ese número es una raíz del polinomio: 2 es raíz de R(x)")
-        self.play(Circumscribe(r[1], color=ACENTO))
+        self.play(Circumscribe(r[1][0][-1], color=OK))
+        notas("También da 0: −2 es otra raíz de P(x)", color=OK)
         self.wait(3)
         notas.fin()
 

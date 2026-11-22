@@ -10,19 +10,14 @@ al final de cada tema.
 
 | Tema | Vídeos |
 |---|---|
-| 0 · Números naturales y potencias | Sistemas de numeración, el número natural, propiedades de las operaciones, potencias, cuadrados perfectos y raíz, redondear y estimar, ejercicios |
-| 1 · Divisibilidad | Múltiplos y divisores, primos y compuestos, criterios de divisibilidad, criba de Eratóstenes |
-| 2 · Factores primos, M.C.D. y m.c.m. | Árbol de factores, divisiones sucesivas, múltiplos y divisores comunes, M.C.D. y m.c.m., problemas, ejercicios y una actividad interactiva para practicar con tus propios números |
-| 3 · Números enteros | Para qué sirven, la recta, opuesto y valor absoluto, comparar y ordenar, ejercicios |
-| 4 · Operaciones con enteros | Sumar en la recta y con fichas, restar, sumas y restas combinadas, multiplicar (regla de los signos), dividir, ejercicios |
-| 5 · Fracciones equivalentes | Qué es una fracción, equivalentes, amplificar y simplificar, comparar, ordenar, ejercicios |
-| 6 · Números decimales | Décimas y centésimas, valor de cada cifra, decimales en la recta, comparar, ordenar, ejercicios |
-| 7 · Operaciones con fracciones | Sumar y restar (mismo y distinto denominador), fracción de una cantidad, multiplicar, dividir, ejercicios |
-| 8 · Operaciones con decimales | Sumar y restar, por 10, 100 y 1000, multiplicar, dividir, de fracción a decimal y redondeo, decimales periódicos, ejercicios |
-| 9 · Potencias y raíces cuadradas | Qué es una potencia, al cuadrado y al cubo, potencias de números negativos, cuadrados perfectos, la raíz cuadrada, raíces aproximadas, ejercicios |
-| 10 · Jerarquía de las operaciones | Por qué hace falta un orden, mismo nivel de izquierda a derecha, paréntesis y corchetes, resolver paso a paso, errores típicos, ejercicios |
+| 1 · Números naturales y potencias | Sistemas de numeración, el número natural, propiedades de las operaciones, potencias, cuadrados perfectos y raíz, redondear y estimar, ejercicios |
+| 2 · Divisibilidad | Múltiplos y divisores, criterios de divisibilidad, primos y compuestos, criba de Eratóstenes, árbol de factores, divisiones sucesivas, múltiplos y divisores comunes, M.C.D. y m.c.m., problemas, ejercicios y una actividad interactiva para practicar con tus propios números |
+| 3 · Números enteros | Para qué sirven, la recta, opuesto y valor absoluto, comparar y ordenar, sumar en la recta y con fichas, restar, sumas y restas combinadas, multiplicar (regla de los signos), dividir, ejercicios |
+| 4 · Jerarquía de las operaciones | Por qué hace falta un orden, mismo nivel de izquierda a derecha, paréntesis y corchetes, resolver paso a paso, potencias de números negativos, errores típicos, ejercicios |
+| 5 · Fracciones | Qué es una fracción, propias, impropias y números mixtos, equivalentes, amplificar y simplificar, comparar, ordenar, sumar y restar, fracción de una cantidad, multiplicar, dividir, operaciones combinadas, ejercicios |
+| 6 · Números decimales | Décimas y centésimas, valor de cada cifra, decimales en la recta, comparar, ordenar, sumar y restar, por 10, 100 y 1000, multiplicar, dividir, de fracción a decimal y redondeo, decimales periódicos, ejercicios |
 
-Próximamente: álgebra, geometría, funciones y estadística.
+Próximamente: proporcionalidad, álgebra, medida, geometría, funciones y estadística.
 
 ## Temas de 2.º ESO · Matemáticas
 
@@ -50,7 +45,8 @@ assets/                       ← recursos de la web (fórmulas del fondo)
 └── Matematicas/
     ├── videos/<tema>/        ← vídeos finales (1080p)
     ├── interactivos/         ← actividades interactivas (HTML) que aparecen en la lista de vídeos
-    └── codigo/               ← escenas de Manim (un archivo por tema) y utilidades
+    └── codigo/               ← escenas de Manim (un archivo por tema) y utilidades; potencias_raices.py
+                                no tiene tema propio: sus vídeos van dentro del tema 4
 2ESO/
 └── Matematicas/
     ├── videos/<tema>/        ← vídeos finales (1080p)
@@ -62,8 +58,8 @@ assets/                       ← recursos de la web (fórmulas del fondo)
 Necesitas Python, `pip install manim` y una instalación de LaTeX (por ejemplo, MiKTeX). Desde `1ESO/Matematicas/codigo`:
 
 ```bash
-python -m manim -pql t03_enteros.py RectaEnteros   # probar una escena en baja calidad
-python publicar.py t03_enteros.py                  # renderizar en 1080p y actualizar la web
+python -m manim -pql t02_divisibilidad.py Divisores   # probar una escena en baja calidad
+python publicar.py t02_divisibilidad.py                 # renderizar en 1080p y actualizar la web
 ```
 
 `publicar.py` deja los vídeos numerados en `videos/<tema>/` y reescribe la lista de vídeos de `index.html`.

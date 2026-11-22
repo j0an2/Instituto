@@ -32,10 +32,10 @@ COMUN = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__))
                                       "..", "..", "..", "1ESO", "Matematicas", "codigo"))
 sys.path.insert(0, COMUN)
 from estilo import *  # noqa: E402,F403
-from t02_factores_mcd_mcm import columna, linea_factorizacion, resolver_mcd_mcm  # noqa: E402
-from t04_operaciones_enteros import tabla_signos  # noqa: E402
-from t09_potencias_raices import Notas, limpiar, subtitulo, b_tex, pot, producto, fichas_cuadrado  # noqa: E402
-from t10_jerarquia import resolver as resolver_expr, parse, valor, tachar, escalera, txt_expr  # noqa: E402
+from t02_divisibilidad import columna, linea_factorizacion, resolver_mcd_mcm  # noqa: E402
+from t03_enteros import tabla_signos  # noqa: E402
+from potencias_raices import Notas, limpiar, subtitulo, b_tex, pot, producto, fichas_cuadrado  # noqa: E402
+from t04_jerarquia import resolver as resolver_expr, parse, valor, tachar, escalera, txt_expr  # noqa: E402
 
 # Metadatos para la web (los lee publicar.py)
 TEMA = "Tema 1 · Números enteros"
